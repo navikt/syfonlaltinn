@@ -40,3 +40,6 @@ spec:
   webproxy: true
   envFrom:
     - secret: syfonlaltinn-secret
+  env:
+    - name: ALTINN_DOWNLOAD_QUEUE_URL
+      value: https://www.altinn.no/ArchiveExternal/DownloadQueueExternalBasic.svc
