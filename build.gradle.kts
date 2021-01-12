@@ -19,6 +19,7 @@ val nimbusdsVersion = "9.2"
 val testContainerKafkaVersion = "1.15.1"
 val altinnDownloadQueueVersion = "1.2020.01.20-15.44-063ae9f84815"
 val cxfVersion = "3.3.1"
+val jaxwsToolsVersion = "2.3.1"
 
 tasks.withType<Jar> {
     manifest.attributes["Main-Class"] = "no.nav.syfo.BootstrapKt"
@@ -82,6 +83,11 @@ dependencies {
     implementation("no.nav.tjenestespesifikasjoner:altinn-download-queue-external:$altinnDownloadQueueVersion")
 
     implementation("org.apache.cxf:cxf-rt-frontend-jaxws:$cxfVersion")
+    implementation("org.apache.cxf:cxf-rt-transports-http:$cxfVersion")
+
+    implementation("com.sun.xml.ws:jaxws-tools:$jaxwsToolsVersion") {
+        exclude(group = "com.sun.xml.ws", module = "policy")
+    }
 
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
