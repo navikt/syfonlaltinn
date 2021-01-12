@@ -38,3 +38,5 @@ spec:
   ingresses:
     - "https://syfonlaltinn.intern.nav.no"
   webproxy: true
+  envFrom:
+    - secret: syfonlaltinn-secret
