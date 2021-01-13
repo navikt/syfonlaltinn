@@ -37,6 +37,12 @@ spec:
     requests:
       cpu: 400m
       memory: 768Mi
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_12
+        diskAutoresize: true
+        databases:
+          - name: syfonlaltinn
   vault:
     enabled: false
   ingresses:
