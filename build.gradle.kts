@@ -20,6 +20,7 @@ val testContainerKafkaVersion = "1.15.1"
 val altinnDownloadQueueVersion = "1.2020.01.20-15.44-063ae9f84815"
 val cxfVersion = "3.3.1"
 val jaxwsToolsVersion = "2.3.1"
+val javaxActivationVersion = "1.2.0"
 
 tasks.withType<Jar> {
     manifest.attributes["Main-Class"] = "no.nav.syfo.BootstrapKt"
@@ -84,7 +85,7 @@ dependencies {
 
     implementation("org.apache.cxf:cxf-rt-frontend-jaxws:$cxfVersion")
     implementation("org.apache.cxf:cxf-rt-transports-http:$cxfVersion")
-
+    implementation("com.sun.activation:javax.activation:$javaxActivationVersion")
     implementation("com.sun.xml.ws:jaxws-tools:$jaxwsToolsVersion") {
         exclude(group = "com.sun.xml.ws", module = "policy")
     }
