@@ -7,6 +7,10 @@ metadata:
     team: teamsykmelding
 spec:
   image: {{ image }}
+  accessPolicy:
+    outbound:
+      external:
+        - host: www.altinn.no
   replicas:
     min: 2
     max: 6

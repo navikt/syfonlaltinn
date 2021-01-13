@@ -7,6 +7,10 @@ metadata:
     team: teamsykmelding
 spec:
   image: {{ image }}
+  accessPolicy:
+    outbound:
+      external:
+        - host: tt02.altinn.no
   replicas:
     min: 2
     max: 2
@@ -42,4 +46,4 @@ spec:
     - secret: syfonlaltinn-secret
   env:
     - name: ALTINN_DOWNLOAD_QUEUE_URL
-      value: https://www.altinn.no/ArchiveExternal/DownloadQueueExternalBasic.svc
+      value: https://tt02.altinn.no/ArchiveExternal/DownloadQueueExternalBasic.svc
