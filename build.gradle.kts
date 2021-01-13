@@ -21,6 +21,9 @@ val altinnDownloadQueueVersion = "1.2020.01.20-15.44-063ae9f84815"
 val cxfVersion = "3.3.1"
 val jaxwsToolsVersion = "2.3.1"
 val javaxActivationVersion = "1.2.0"
+val postgresVersion = "42.2.5"
+val flywayVersion = "5.2.4"
+val hikariVersion = "3.3.0"
 
 tasks.withType<Jar> {
     manifest.attributes["Main-Class"] = "no.nav.syfo.BootstrapKt"
@@ -89,6 +92,10 @@ dependencies {
     implementation("com.sun.xml.ws:jaxws-tools:$jaxwsToolsVersion") {
         exclude(group = "com.sun.xml.ws", module = "policy")
     }
+
+    implementation("org.postgresql:postgresql:$postgresVersion")
+    implementation("com.zaxxer:HikariCP:$hikariVersion")
+    implementation("org.flywaydb:flyway-core:$flywayVersion")
 
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")

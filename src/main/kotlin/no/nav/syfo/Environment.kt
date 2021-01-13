@@ -5,8 +5,19 @@ data class Environment(
     val applicationName: String = getEnvVar("NAIS_APP_NAME", "syfonlaltinn"),
     val altinnDownloadUrl: String = getEnvVar("ALTINN_DOWNLOAD_QUEUE_URL"),
     val navUsername: String = getEnvVar("NAV_USERNAME"),
-    val navPassword: String = getEnvVar("NAV_PASSWORD")
-)
+    val navPassword: String = getEnvVar("NAV_PASSWORD"),
+    val databaseUsername: String = getEnvVar("NAIS_DATABASE_USERNAME"),
+    val databasePassword: String = getEnvVar("NAIS_DATABASE_PASSWORD"),
+    val dbHost: String = getEnvVar("NAIS_DATABASE_HOST"),
+    val dbPort: String = getEnvVar("NAIS_DATABASE_PORT"),
+    val dbName: String = getEnvVar("NAIS_DATABASE_DATABASE")
+) {
+    fun jdbcUrl(): String {
+        return "jdbc:postgresql://$dbHost:$dbPort/$dbName"
+    }
 
-fun getEnvVar(varName: String, defaultValue: String? = null) =
-    System.getenv(varName) ?: defaultValue ?: throw RuntimeException("Missing required variable \"$varName\"")
+    companion object {
+        fun getEnvVar(varName: String, defaultValue: String? = null) =
+            System.getenv(varName) ?: defaultValue ?: throw RuntimeException("Missing required variable \"$varName\"")
+    }
+}

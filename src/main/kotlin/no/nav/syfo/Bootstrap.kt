@@ -8,6 +8,7 @@ import no.nav.syfo.altinn.narmesteleder.NarmesteLederDownloadService
 import no.nav.syfo.application.ApplicationServer
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.createApplicationEngine
+import no.nav.syfo.db.Database
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -25,6 +26,8 @@ fun main() {
     val applicationServer = ApplicationServer(applicationEngine, applicationState)
     applicationServer.start()
     applicationState.ready = true
+
+    val database = Database(env)
 
     val iDownloadQueueExternalBasic = JaxWsProxyFactoryBean().apply {
         address = env.altinnDownloadUrl
