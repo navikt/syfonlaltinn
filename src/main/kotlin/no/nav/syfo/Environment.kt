@@ -6,11 +6,11 @@ data class Environment(
     val altinnDownloadUrl: String = getEnvVar("ALTINN_DOWNLOAD_QUEUE_URL"),
     val navUsername: String = getEnvVar("NAV_USERNAME"),
     val navPassword: String = getEnvVar("NAV_PASSWORD"),
-    val databaseUsername: String = getEnvVar("NAIS_DATABASE_USERNAME"),
-    val databasePassword: String = getEnvVar("NAIS_DATABASE_PASSWORD"),
-    val dbHost: String = getEnvVar("NAIS_DATABASE_HOST"),
-    val dbPort: String = getEnvVar("NAIS_DATABASE_PORT"),
-    val dbName: String = getEnvVar("NAIS_DATABASE_DATABASE")
+    val databaseUsername: String = getEnvVar("NAIS_DATABASE_SYFONLALTINN_SYFONLALTINN_USERNAME"),
+    val databasePassword: String = getEnvVar("NAIS_DATABASE_SYFONLALTINN_SYFONLALTINN_PASSWORD"),
+    val dbHost: String = getEnvVar("NAIS_DATABASE_SYFONLALTINN_SYFONLALTINN_HOST"),
+    val dbPort: String = getEnvVar("NAIS_DATABASE_SYFONLALTINN_SYFONLALTINN_PORT"),
+    val dbName: String = getEnvVar("NAIS_DATABASE_SYFONLALTINN_SYFONLALTINN_DATABASE")
 ) {
     fun jdbcUrl(): String {
         return "jdbc:postgresql://$dbHost:$dbPort/$dbName"
