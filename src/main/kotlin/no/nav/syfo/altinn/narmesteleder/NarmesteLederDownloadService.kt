@@ -16,7 +16,7 @@ class NarmesteLederDownloadService(
     companion object {
         private const val SERVICE_CODE = "4596"
         private const val LANGUAGE_ID = 1033
-        private const val DELAY = 60_000L
+        private const val DELAY = 60_000L * 5
     }
 
     suspend fun start() {
