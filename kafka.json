@@ -1,0 +1,36 @@
+{
+  "topics": [
+    {
+      "topicName": "syfo-nl-request",
+      "members": [
+        {"member":"srvsyfonlaltinn", "role":"CONSUMER"},
+        {"member":"s151890", "role":"MANAGER"},
+        {"member":"k143566", "role":"MANAGER"},
+        {"member":"f133008", "role":"MANAGER"},
+        {"member":"n157016", "role":"MANAGER"},
+        {"member":"k157140", "role":"MANAGER"},
+        {"member":"g153850", "role":"MANAGER"}
+      ],
+      "numPartitions": 3,
+      "configEntries": {
+        "retention.ms": "-1"
+      }
+    },
+    {
+      "topicName": "syfo-nl-response",
+      "members": [
+        {"member":"srvsyfonlaltinn", "role":"PRODUCER"},
+        {"member":"s151890", "role":"MANAGER"},
+        {"member":"k143566", "role":"MANAGER"},
+        {"member":"f133008", "role":"MANAGER"},
+        {"member":"n157016", "role":"MANAGER"},
+        {"member":"k157140", "role":"MANAGER"},
+        {"member":"g153850", "role":"MANAGER"}
+      ],
+      "numPartitions": 3,
+      "configEntries": {
+        "retention.ms": "-1"
+      }
+    }
+  ]
+}
