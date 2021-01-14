@@ -24,6 +24,7 @@ val javaxActivationVersion = "1.2.0"
 val postgresVersion = "42.2.5"
 val flywayVersion = "5.2.4"
 val hikariVersion = "3.3.0"
+val postgresContainerVersion = "1.15.0"
 
 tasks.withType<Jar> {
     manifest.attributes["Main-Class"] = "no.nav.syfo.BootstrapKt"
@@ -111,6 +112,9 @@ dependencies {
     testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:$spekVersion") {
         exclude(group = "org.jetbrains.kotlin")
     }
+
+    testImplementation("org.testcontainers:postgresql:$postgresContainerVersion")
+
 }
 
 tasks.jacocoTestReport {
