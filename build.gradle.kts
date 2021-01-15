@@ -17,7 +17,8 @@ val smCommonVersion = "1.836b169"
 val mockkVersion = "1.10.3"
 val nimbusdsVersion = "9.2"
 val testContainerKafkaVersion = "1.15.1"
-val altinnDownloadQueueVersion = "1.2020.01.20-15.44-063ae9f84815"
+val altinnDownloadQueueVersion = "1.2020.10.21-14.38-e6bb56478815"
+val altinnPrefillVersion = "1.2020.10.21-14.38-e6bb56478815"
 val cxfVersion = "3.3.1"
 val jaxwsToolsVersion = "2.3.1"
 val javaxActivationVersion = "1.2.0"
@@ -25,6 +26,7 @@ val postgresVersion = "42.2.5"
 val flywayVersion = "5.2.4"
 val hikariVersion = "3.3.0"
 val postgresContainerVersion = "1.15.0"
+val digisyfoNarmesteLederVersion = "1.2020.10.07-08.40-90b3ab7bad15"
 
 tasks.withType<Jar> {
     manifest.attributes["Main-Class"] = "no.nav.syfo.BootstrapKt"
@@ -86,7 +88,8 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     implementation("no.nav.tjenestespesifikasjoner:altinn-download-queue-external:$altinnDownloadQueueVersion")
-
+    implementation("no.nav.tjenestespesifikasjoner:altinn-pre-fill:$altinnPrefillVersion")
+    implementation("no.nav.tjenestespesifikasjoner:digisyfo-naermesteLeder:$digisyfoNarmesteLederVersion")
     implementation("org.apache.cxf:cxf-rt-frontend-jaxws:$cxfVersion")
     implementation("org.apache.cxf:cxf-rt-transports-http:$cxfVersion")
     implementation("com.sun.activation:javax.activation:$javaxActivationVersion")
@@ -97,6 +100,7 @@ dependencies {
     implementation("org.postgresql:postgresql:$postgresVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
+    implementation("no.nav.helse:syfosm-common-kafka:$smCommonVersion")
 
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")

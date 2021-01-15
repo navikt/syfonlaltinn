@@ -69,8 +69,6 @@ class DatabaseTest : Spek({
 
             val queryBySykmeldingId = database.getAltinnStatusBySykmeldingId(altinnStatus.sykmeldingId)
             queryBySykmeldingId shouldBeEqualTo altinnStatus
-
-
         }
 
         it("Update status") {
@@ -90,6 +88,5 @@ class DatabaseTest : Spek({
             val status = database.getAltinnStatus(altinnStatus.id)
             status!!.status shouldBeEqualTo updated.status
         }
-
     }
 })
