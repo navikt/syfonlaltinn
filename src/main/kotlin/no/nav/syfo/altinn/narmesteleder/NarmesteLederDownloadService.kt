@@ -3,6 +3,7 @@ package no.nav.syfo.altinn.narmesteleder
 import kotlinx.coroutines.delay
 import no.altinn.schemas.services.archive.downloadqueue._2012._08.DownloadQueueItemBE
 import no.altinn.services.archive.downloadqueue._2012._08.IDownloadQueueExternalBasic
+import no.nav.syfo.altinn.narmesteleder.JAXBUtil.Companion.unmarshallNarmesteLederSkjema
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.log
 
@@ -39,7 +40,10 @@ class NarmesteLederDownloadService(
 
     private fun handleDownloadItem(it: DownloadQueueItemBE) {
         val item = iDownloadQueueExternalBasic.getArchivedFormTaskBasicDQ(navUsername, navPassword, it.archiveReference, LANGUAGE_ID, true)
-        val form = item.forms.archivedFormDQBE[0]
-        log.info("Got item from altinn download queue ${item.archiveReference}, with form reference ${form.reference} with parent reference ${form.parentReference}")
+        val form = item.forms.archivedFormDQBE.forEach {
+            val formData = unmarshallNarmesteLederSkjema(it.formData)
+            val sykmeldingId = formData.skjemainnhold.hendelseId
+            log.info("Got item from altinn download queue ${item.archiveReference}, with sykmeldingId: $sykmeldingId")
+        }
     }
 }

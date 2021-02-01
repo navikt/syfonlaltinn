@@ -2,6 +2,7 @@ package no.nav.syfo.altinn.narmesteleder
 
 import com.sun.xml.bind.api.JAXBRIContext.newInstance
 import generated.XMLOppgiPersonallederM
+import java.io.StringReader
 import java.io.StringWriter
 import javax.xml.bind.Marshaller
 import javax.xml.transform.stream.StreamResult
@@ -20,6 +21,10 @@ class JAXBUtil {
             marshaller.setProperty(Marshaller.JAXB_FRAGMENT, true)
             marshaller.marshal(element, StreamResult(stringWriter))
             return stringWriter.toString()
+        }
+
+        fun unmarshallNarmesteLederSkjema(value: String): XMLOppgiPersonallederM {
+            return JAXBContext.createUnmarshaller().unmarshal(StringReader(value)) as XMLOppgiPersonallederM
         }
     }
 }
