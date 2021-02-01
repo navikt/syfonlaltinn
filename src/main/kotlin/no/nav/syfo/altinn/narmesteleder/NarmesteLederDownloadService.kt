@@ -39,6 +39,7 @@ class NarmesteLederDownloadService(
 
     private fun handleDownloadItem(it: DownloadQueueItemBE) {
         val item = iDownloadQueueExternalBasic.getArchivedFormTaskBasicDQ(navUsername, navPassword, it.archiveReference, LANGUAGE_ID, true)
-        log.info("Got item from altinn download queue ${item.archiveReference}")
+        val form = item.forms.archivedFormDQBE[0]
+        log.info("Got item from altinn download queue ${item.archiveReference}, with form reference ${form.reference} with parent reference ${form.parentReference}")
     }
 }
