@@ -4,6 +4,7 @@ import com.sun.xml.bind.api.JAXBRIContext.newInstance
 import generated.XMLOppgiPersonallederM
 import java.io.StringReader
 import java.io.StringWriter
+import javax.xml.bind.JAXBElement
 import javax.xml.bind.Marshaller
 import javax.xml.transform.stream.StreamResult
 
@@ -24,7 +25,7 @@ class JAXBUtil {
         }
 
         fun unmarshallNarmesteLederSkjema(value: String): XMLOppgiPersonallederM {
-            return JAXBContext.createUnmarshaller().unmarshal(StringReader(value)) as XMLOppgiPersonallederM
+            return (JAXBContext.createUnmarshaller().unmarshal(StringReader(value)) as JAXBElement<XMLOppgiPersonallederM>).value
         }
     }
 }
