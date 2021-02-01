@@ -43,7 +43,7 @@ class NarmesteLederDownloadService(
         val form = item.forms.archivedFormDQBE.forEach {
             val formData = unmarshallNarmesteLederSkjema(it.formData)
             val sykmeldingId = formData.skjemainnhold.hendelseId
-            log.info("Got item from altinn download queue ${item.archiveReference}, with sykmeldingId: $sykmeldingId")
+            log.info("Got item from altinn download queue ${item.archiveReference}, with sykmeldingId: ${sykmeldingId.value})
         }
     }
 }
