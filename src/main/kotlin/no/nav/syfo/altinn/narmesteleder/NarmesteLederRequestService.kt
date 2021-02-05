@@ -11,8 +11,13 @@ import no.altinn.services.serviceengine.prefill._2009._10.IPreFillExternalBasic
 import no.nav.syfo.log
 import no.nav.syfo.nl.model.NlRequest
 import java.lang.RuntimeException
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
+import java.util.GregorianCalendar
 import java.util.UUID
 import javax.xml.bind.JAXBElement
+import javax.xml.datatype.DatatypeFactory.newInstance
+import javax.xml.datatype.XMLGregorianCalendar
 import javax.xml.namespace.QName
 
 class NarmesteLederRequestService(private val navUsername: String, private val navPassword: String, private val iPreFillExternalBasic: IPreFillExternalBasic) {
@@ -21,6 +26,7 @@ class NarmesteLederRequestService(private val navUsername: String, private val n
         private const val DATA_FORMAT_VERSION = 42026
         private const val DATA_FORMAT_ID = "5363"
         private const val DATA_FORMAT_PROVIDER = "SERES"
+        private const val SYSTEM_USER_CODE = "NAV_DIGISYFO"
     }
 
     fun sendRequestToAltinn(nlRequest: NlRequest) {
@@ -50,11 +56,25 @@ class NarmesteLederRequestService(private val navUsername: String, private val n
                             .withDataFormatID(DATA_FORMAT_ID)
                             .withDataFormatVersion(DATA_FORMAT_VERSION)
                             .withFormDataXML(generateFormData(nlRequest))
-                            .withSendersReference(nlRequest.sykmeldingId)
+                            .withSendersReference(UUID.randomUUID().toString())
                             .withSignedByDefault(false)
                             .withSigningLocked(false)
                     )
             )
+            .withReceiversReference(UUID.randomUUID().toString())
+            .withReportee(nlRequest.orgnr)
+            .withSendersReference(UUID.randomUUID().toString())
+            .withServiceOwnerCode(SYSTEM_USER_CODE)
+            .withValidFromDate(createXMLDate(ZonedDateTime.now(ZoneOffset.UTC)))
+            .withValidToDate(getDueDate())
+    }
+
+    private fun getDueDate(): XMLGregorianCalendar {
+        return createXMLDate(ZonedDateTime.now(ZoneOffset.UTC).plusDays(7))
+    }
+
+    fun createXMLDate(date: ZonedDateTime): XMLGregorianCalendar {
+        return newInstance().newXMLGregorianCalendar(GregorianCalendar.from(date))
     }
 
     private fun generateFormData(nlRequest: NlRequest): String {
@@ -73,8 +93,8 @@ class NarmesteLederRequestService(private val navUsername: String, private val n
                                 .withSykmeldtNavn(nlRequest.name)
                         )
                     )
+                    .withOrganisasjonsnummer(nlRequest.orgnr)
             )
-
         return JAXBUtil.marshall(xmlOppgiPersonalLeder)
     }
 }
