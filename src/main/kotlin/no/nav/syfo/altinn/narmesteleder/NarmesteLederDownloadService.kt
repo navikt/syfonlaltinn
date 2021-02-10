@@ -4,6 +4,7 @@ import generated.XMLSkjemainnhold
 import kotlinx.coroutines.delay
 import no.altinn.schemas.services.archive.downloadqueue._2012._08.DownloadQueueItemBE
 import no.altinn.services.archive.downloadqueue._2012._08.IDownloadQueueExternalBasic
+import no.altinn.services.archive.downloadqueue._2012._08.IDownloadQueueExternalBasicGetDownloadQueueItemsAltinnFaultFaultFaultMessage
 import no.nav.syfo.altinn.narmesteleder.JAXBUtil.Companion.unmarshallNarmesteLederSkjema
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.log
@@ -39,6 +40,8 @@ class NarmesteLederDownloadService(
             val items = iDownloadQueueExternalBasic.getDownloadQueueItems(navUsername, navPassword, SERVICE_CODE)
             log.info("Got itmes from download queue from altinn ${items.downloadQueueItemBE.size}")
             items.downloadQueueItemBE.forEach { handleDownloadItem(it) }
+        } catch (ex: IDownloadQueueExternalBasicGetDownloadQueueItemsAltinnFaultFaultFaultMessage) {
+            log.error("Error getting items from DownloadQueueu" + ex.faultInfo.altinnErrorMessage)
         } catch (ex: Exception) {
             log.error("Error getting download items from altinn", ex)
             throw ex
