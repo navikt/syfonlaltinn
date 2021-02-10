@@ -15,6 +15,7 @@ import no.nav.syfo.nl.kafka.NlResponseProducer
 import no.nav.syfo.nl.kafka.model.NlResponseKafkaMessage
 import no.nav.syfo.nl.kafka.util.JacksonKafkaSerializer
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
+import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.common.serialization.StringSerializer
 import org.slf4j.Logger
@@ -43,6 +44,9 @@ fun main() {
     val kafkaProducer = KafkaProducer<String, NlResponseKafkaMessage>(
         KafkaUtils
             .getAivenKafkaConfig()
+            .also {
+                it[CommonClientConfigs.SECURITY_PROTOCOL_CONFIG] = "SSL"
+            }
             .toProducerConfig("syfonlaltinn-producer", JacksonKafkaSerializer::class, StringSerializer::class)
     )
     val NlResponseKafkaProducer = NlResponseProducer(kafkaProducer, env.nlResponseTopic)
