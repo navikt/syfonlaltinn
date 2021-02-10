@@ -13,7 +13,7 @@ val logbackVersion = "1.2.3"
 val logstashEncoderVersion = "6.5"
 val prometheusVersion = "0.9.0"
 val spekVersion = "2.0.9"
-val smCommonVersion = "1.836b169"
+val smCommonVersion = "1.f4672d6-SNAPSHOT"
 val mockkVersion = "1.10.3"
 val nimbusdsVersion = "9.2"
 val testContainerKafkaVersion = "1.15.1"
@@ -27,6 +27,7 @@ val flywayVersion = "5.2.4"
 val hikariVersion = "3.3.0"
 val postgresContainerVersion = "1.15.0"
 val digisyfoNarmesteLederVersion = "1.2020.10.07-08.40-90b3ab7bad15"
+val commonsValidatorVersion = "1.7"
 
 tasks.withType<Jar> {
     manifest.attributes["Main-Class"] = "no.nav.syfo.BootstrapKt"
@@ -101,6 +102,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("no.nav.helse:syfosm-common-kafka:$smCommonVersion")
+    implementation("commons-validator:commons-validator:$commonsValidatorVersion")
 
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")

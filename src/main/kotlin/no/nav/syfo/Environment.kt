@@ -10,7 +10,8 @@ data class Environment(
     val databasePassword: String = getEnvVar("NAIS_DATABASE_SYFONLALTINN_SYFONLALTINN_PASSWORD"),
     val dbHost: String = getEnvVar("NAIS_DATABASE_SYFONLALTINN_SYFONLALTINN_HOST"),
     val dbPort: String = getEnvVar("NAIS_DATABASE_SYFONLALTINN_SYFONLALTINN_PORT"),
-    val dbName: String = getEnvVar("NAIS_DATABASE_SYFONLALTINN_SYFONLALTINN_DATABASE")
+    val dbName: String = getEnvVar("NAIS_DATABASE_SYFONLALTINN_SYFONLALTINN_DATABASE"),
+    val nlResponseTopic: String = "teamsykmelding.syfo-nl-response"
 ) {
     fun jdbcUrl(): String {
         return "jdbc:postgresql://$dbHost:$dbPort/$dbName"

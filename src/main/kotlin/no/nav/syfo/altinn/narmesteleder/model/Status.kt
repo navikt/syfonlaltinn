@@ -12,7 +12,7 @@ data class AltinnStatus(
     val status: Status
 ) {
     enum class Status {
-        PENDING,
+        NEW,
         DONE
     }
 }

@@ -43,6 +43,8 @@ spec:
         diskAutoresize: true
         databases:
           - name: syfonlaltinn
+  kafka:
+    pool: nav-dev
   vault:
     enabled: false
   ingresses:

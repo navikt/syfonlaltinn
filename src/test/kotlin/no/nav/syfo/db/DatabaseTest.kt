@@ -60,7 +60,7 @@ class DatabaseTest : Spek({
                 orgNr = "orgnr",
                 fnr = "fnr",
                 timestamp = OffsetDateTime.now(ZoneOffset.UTC),
-                status = AltinnStatus.Status.PENDING
+                status = AltinnStatus.Status.NEW
             )
             database.insertAltinnStatus(altinnStatus)
 
@@ -78,7 +78,7 @@ class DatabaseTest : Spek({
                 orgNr = "orgnr",
                 fnr = "fnr",
                 timestamp = OffsetDateTime.now(ZoneOffset.UTC),
-                status = AltinnStatus.Status.PENDING
+                status = AltinnStatus.Status.NEW
             )
             database.insertAltinnStatus(altinnStatus)
 
