@@ -43,6 +43,8 @@ spec:
         diskAutoresize: true
         databases:
           - name: syfonlaltinn
+  kafka:
+    pool: nav-prod
   vault:
     enabled: false
   ingresses:
@@ -53,3 +55,5 @@ spec:
   env:
     - name: ALTINN_DOWNLOAD_QUEUE_URL
       value: https://www.altinn.no/ArchiveExternal/DownloadQueueExternalBasic.svc
+    - name: KAFKA_CLIENT_ID
+      value: syfonlaltinn
