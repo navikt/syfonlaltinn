@@ -10,7 +10,6 @@ import no.altinn.schemas.services.serviceengine.prefill._2009._10.PrefillFormTas
 import no.altinn.services.serviceengine.prefill._2009._10.IPreFillExternalBasic
 import no.nav.syfo.log
 import no.nav.syfo.nl.model.NlRequest
-import java.lang.RuntimeException
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.GregorianCalendar
@@ -20,7 +19,11 @@ import javax.xml.datatype.DatatypeFactory.newInstance
 import javax.xml.datatype.XMLGregorianCalendar
 import javax.xml.namespace.QName
 
-class NarmesteLederRequestService(private val navUsername: String, private val navPassword: String, private val iPreFillExternalBasic: IPreFillExternalBasic) {
+class NarmesteLederRequestService(
+    private val navUsername: String,
+    private val navPassword: String,
+    private val iPreFillExternalBasic: IPreFillExternalBasic
+) {
     companion object {
         private const val NARMESTE_LEDER_TJENESTEKODE = "4596"
         private const val DATA_FORMAT_VERSION = 42026
@@ -29,15 +32,27 @@ class NarmesteLederRequestService(private val navUsername: String, private val n
         private const val SYSTEM_USER_CODE = "NAV_DIGISYFO"
     }
 
-    fun sendRequestToAltinn(nlRequest: NlRequest) {
+    fun sendRequestToAltinn(nlRequest: NlRequest): String {
         try {
             val receipt = iPreFillExternalBasic.submitAndInstantiatePrefilledFormTaskBasic(
-                navUsername, navPassword, UUID.randomUUID().toString(), getPrefillFormTask(nlRequest), false, true, null, null
+                navUsername,
+                navPassword,
+                UUID.randomUUID().toString(),
+                getPrefillFormTask(nlRequest),
+                false,
+                true,
+                null,
+                null
             )
             if (receipt.receiptStatusCode != ReceiptStatusEnum.OK) {
                 log.error("Could not sendt NlRequest to altinn for sykmelding :${nlRequest.sykmeldingId}")
                 throw RuntimeException("Could not send to altinn")
             }
+            return receipt.references.reference.stream()
+                .filter { "SendersReference" == it.referenceTypeName.value() }
+                .map { it.referenceValue }
+                .findFirst()
+                .orElseThrow { RuntimeException("Could not find SendersReference") }
         } catch (ex: Exception) {
             log.error("Could not send to altinn", ex)
             throw ex
