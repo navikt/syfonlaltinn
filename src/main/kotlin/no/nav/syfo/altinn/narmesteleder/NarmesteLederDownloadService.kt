@@ -62,7 +62,7 @@ class NarmesteLederDownloadService(
     }
     private fun toNlResponse(skjemaInnhold: XMLSkjemainnhold): NlResponse {
         val orgnummer = skjemaInnhold.organisasjonsnummer
-        val utbetalesLonn = skjemaInnhold.utbetalesLonn.value
+        val utbetalesLonn = skjemaInnhold.utbetalesLonn?.value
         var nlEpost = skjemaInnhold.naermesteLeder.value.naermesteLederEpost.value
         val nlFnr = skjemaInnhold.naermesteLeder.value.naermesteLederFoedselsnummer.value
         val nlMobil = skjemaInnhold.naermesteLeder.value.naermesteLederMobilnummer.value
