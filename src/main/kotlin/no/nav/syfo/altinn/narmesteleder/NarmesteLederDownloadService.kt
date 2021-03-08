@@ -6,6 +6,7 @@ import no.altinn.schemas.services.archive.downloadqueue._2012._08.DownloadQueueI
 import no.altinn.services.archive.downloadqueue._2012._08.IDownloadQueueExternalBasic
 import no.altinn.services.archive.downloadqueue._2012._08.IDownloadQueueExternalBasicGetDownloadQueueItemsAltinnFaultFaultFaultMessage
 import no.nav.syfo.altinn.narmesteleder.JAXBUtil.Companion.unmarshallNarmesteLederSkjema
+import no.nav.syfo.altinn.narmesteleder.util.fixEmailFormat
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.log
 import no.nav.syfo.nl.kafka.NlResponseProducer
@@ -71,10 +72,7 @@ class NarmesteLederDownloadService(
         val sykmeldtFnr = skjemaInnhold.sykmeldt.value.sykmeldtFoedselsnummer
         val sykmeldtNavn = skjemaInnhold.sykmeldt.value.sykmeldtNavn
 
-        if (nlEpost.contains(";")) {
-            log.info("Email contains ; $nlEpost removes everything after ;")
-            nlEpost = nlEpost.split(";")[0]
-        }
+        nlEpost = fixEmailFormat(nlEpost)
 
         validateInputs(nlFnr, nlEpost)
 
