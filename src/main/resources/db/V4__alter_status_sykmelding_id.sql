@@ -1,0 +1,2 @@
+ALTER TABLE status ALTER COLUMN sykmelding_id DROP NOT NULL;
+
