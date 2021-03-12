@@ -55,5 +55,7 @@ spec:
   env:
     - name: ALTINN_DOWNLOAD_QUEUE_URL
       value: https://www.altinn.no/ArchiveExternal/DownloadQueueExternalBasic.svc
+    - name: ALTINN_PREFILL_URL
+      value: https://www.altinn.no/ServiceEngineExternal/PrefillBasic.svc
     - name: KAFKA_CLIENT_ID
       value: syfonlaltinn

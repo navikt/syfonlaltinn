@@ -12,22 +12,9 @@ fun DatabaseInterface.getAltinnStatus(id: UUID): AltinnStatus? {
         connection.prepareStatement(
             """
             SELECT * FROM status WHERE id = ?
-            """.trimIndent()
+            """
         ).use {
             it.setObject(1, id)
-            it.executeQuery().toAltinnStatus()
-        }
-    }
-}
-
-fun DatabaseInterface.getAltinnStatusBySykmeldingId(sykmeldingId: UUID): AltinnStatus? {
-    return connection.use { connection ->
-        connection.prepareStatement(
-            """
-            SELECT * FROM status WHERE sykmelding_id = ?
-            """.trimIndent()
-        ).use {
-            it.setObject(1, sykmeldingId)
             it.executeQuery().toAltinnStatus()
         }
     }
@@ -37,9 +24,9 @@ fun DatabaseInterface.insertAltinnStatus(altinnStatus: AltinnStatus) {
     connection.use { connection ->
         connection.prepareStatement(
             """
-            INSERT INTO status(id, sykmelding_id, org_nr, fnr, timestamp, status)
-             VALUES (?, ?, ?, ?, ?, ?)
-            """.trimIndent()
+            INSERT INTO status(id, sykmelding_id, org_nr, fnr, timestamp, status, senders_reference)
+             VALUES (?, ?, ?, ?, ?, ?, ?)
+            """
         ).use { ps ->
             var i = 1
             ps.setObject(i++, altinnStatus.id)
@@ -47,7 +34,8 @@ fun DatabaseInterface.insertAltinnStatus(altinnStatus: AltinnStatus) {
             ps.setString(i++, altinnStatus.orgNr)
             ps.setString(i++, altinnStatus.fnr)
             ps.setTimestamp(i++, Timestamp.from(altinnStatus.timestamp.toInstant()))
-            ps.setString(i, altinnStatus.status.toString())
+            ps.setString(i++, altinnStatus.status.toString())
+            ps.setString(i, altinnStatus.sendersReference)
             ps.executeUpdate()
         }
         connection.commit()
@@ -59,12 +47,14 @@ fun DatabaseInterface.updateAltinnStatus(altinnStatus: AltinnStatus) {
         connection.prepareStatement(
             """
            UPDATE status 
-           SET status = ? 
+           SET status = ?,
+           senders_reference = ?
            WHERE id = ?
-            """.trimIndent()
+            """
         ).use { ps ->
             ps.setString(1, altinnStatus.status.name)
-            ps.setObject(2, altinnStatus.id)
+            ps.setString(2, altinnStatus.sendersReference)
+            ps.setObject(3, altinnStatus.id)
             ps.executeUpdate()
         }
         connection.commit()
@@ -75,12 +65,12 @@ private fun ResultSet.toAltinnStatus(): AltinnStatus? {
     return when (next()) {
         true -> AltinnStatus(
             id = UUID.fromString(getString("id")),
-            sykmeldingId = UUID.fromString(getString("sykmelding_id")),
+            sykmeldingId = getString("sykmelding_id")?.let { UUID.fromString(it) },
             orgNr = getString("org_nr"),
             fnr = getString("fnr"),
             timestamp = getTimestamp("timestamp").toInstant().atOffset(ZoneOffset.UTC),
-            status = AltinnStatus.Status.valueOf(getString("status"))
-
+            status = AltinnStatus.Status.valueOf(getString("status")),
+            sendersReference = getString("senders_reference")
         )
         false -> null
     }

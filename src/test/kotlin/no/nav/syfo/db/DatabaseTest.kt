@@ -4,7 +4,6 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.syfo.Environment
 import no.nav.syfo.altinn.narmesteleder.db.getAltinnStatus
-import no.nav.syfo.altinn.narmesteleder.db.getAltinnStatusBySykmeldingId
 import no.nav.syfo.altinn.narmesteleder.db.insertAltinnStatus
 import no.nav.syfo.altinn.narmesteleder.db.updateAltinnStatus
 import no.nav.syfo.altinn.narmesteleder.model.AltinnStatus
@@ -54,39 +53,45 @@ class DatabaseTest : Spek({
         val database = Database(mockEnv)
 
         it("Insert new sykmeldingStatus") {
-            val altinnStatus = AltinnStatus(
-                id = UUID.randomUUID(),
-                sykmeldingId = UUID.randomUUID(),
-                orgNr = "orgnr",
-                fnr = "fnr",
-                timestamp = OffsetDateTime.now(ZoneOffset.UTC),
-                status = AltinnStatus.Status.NEW
-            )
+            val altinnStatus = getAltinnStatus()
             database.insertAltinnStatus(altinnStatus)
 
             val queryById = database.getAltinnStatus(altinnStatus.id)
             queryById shouldBeEqualTo altinnStatus
 
-            val queryBySykmeldingId = database.getAltinnStatusBySykmeldingId(altinnStatus.sykmeldingId)
+            val queryBySykmeldingId = database.getAltinnStatus(altinnStatus.id)
             queryBySykmeldingId shouldBeEqualTo altinnStatus
         }
 
         it("Update status") {
-            val altinnStatus = AltinnStatus(
-                id = UUID.randomUUID(),
-                sykmeldingId = UUID.randomUUID(),
-                orgNr = "orgnr",
-                fnr = "fnr",
-                timestamp = OffsetDateTime.now(ZoneOffset.UTC),
-                status = AltinnStatus.Status.NEW
-            )
+            val altinnStatus = getAltinnStatus()
             database.insertAltinnStatus(altinnStatus)
 
-            val updated = altinnStatus.copy(status = AltinnStatus.Status.DONE)
+            val updated = altinnStatus.copy(status = AltinnStatus.Status.SENDT)
             database.updateAltinnStatus(updated)
 
             val status = database.getAltinnStatus(altinnStatus.id)
             status!!.status shouldBeEqualTo updated.status
         }
+
+        it("Should update status with senders reference") {
+            val status = getAltinnStatus()
+            database.insertAltinnStatus(status)
+
+            val updataStatus = status.copy(status = AltinnStatus.Status.SENDT, sendersReference = "123")
+            database.updateAltinnStatus(updataStatus)
+
+            database.getAltinnStatus(status.id) shouldBeEqualTo updataStatus
+        }
     }
 })
+
+private fun getAltinnStatus() = AltinnStatus(
+    id = UUID.randomUUID(),
+    sykmeldingId = UUID.randomUUID(),
+    orgNr = "orgnr",
+    fnr = "fnr",
+    timestamp = OffsetDateTime.now(ZoneOffset.UTC),
+    status = AltinnStatus.Status.NEW,
+    sendersReference = null
+)

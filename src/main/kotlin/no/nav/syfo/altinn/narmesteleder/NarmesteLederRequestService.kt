@@ -63,7 +63,7 @@ class NarmesteLederRequestService(
         return PrefillFormTask()
             .withExternalServiceCode(NARMESTE_LEDER_TJENESTEKODE)
             .withExternalServiceEditionCode(1)
-            .withExternalShipmentReference(nlRequest.sykmeldingId)
+            .withExternalShipmentReference(nlRequest.requestId.toString())
             .withPreFillForms(
                 PrefillFormBEList()
                     .withPrefillForm(
