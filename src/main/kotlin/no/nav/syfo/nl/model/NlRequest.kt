@@ -1,7 +1,10 @@
 package no.nav.syfo.nl.model
 
+import java.util.UUID
+
 data class NlRequest(
-    val sykmeldingId: String,
+    val requestId: UUID,
+    val sykmeldingId: UUID?,
     val fnr: String,
     val orgnr: String,
     val name: String
