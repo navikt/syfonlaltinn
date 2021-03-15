@@ -10,4 +10,3 @@ public fun fixEmailFormat(nlEpost: String): String {
     }
     return newEmail.trim()
 }
-

@@ -69,7 +69,7 @@ fun main() {
         env.navUsername,
         env.navPassword,
         iPreFillExternalBasic
-    ).apply {  }
+    ).apply { }
     val narmesteLederRequestConsumerService = NarmesteLederRequestConsumerService(
         kafkaConsumer,
         applicationState,
@@ -94,10 +94,9 @@ fun main() {
     startBackgroundJob(applicationState) {
         narmesteLederRequestConsumerService.startConsumer()
     }
-
 }
 
-fun startBackgroundJob(applicationState: ApplicationState,  block: suspend CoroutineScope.() ->  Unit) {
+fun startBackgroundJob(applicationState: ApplicationState, block: suspend CoroutineScope.() -> Unit) {
     GlobalScope.launch {
         try {
             block()

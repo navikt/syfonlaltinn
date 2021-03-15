@@ -52,11 +52,15 @@ class NarmesteLederDownloadService(
     private fun handleDownloadItem(it: DownloadQueueItemBE) {
         val item = iDownloadQueueExternalBasic.getArchivedFormTaskBasicDQ(navUsername, navPassword, it.archiveReference, LANGUAGE_ID, true)
 
-        val form = item.forms.archivedFormDQBE.forEach {
+        item.forms.archivedFormDQBE.forEach {
             val formData = unmarshallNarmesteLederSkjema(it.formData)
-            val nlResponse = toNlResponse(formData.skjemainnhold)
-            nlResponseProducer.sendNlResponse(nlResponse)
-            log.info("Got item from altinn download queue ${item.archiveReference} and sendt to kafka")
+            try {
+                val nlResponse = toNlResponse(formData.skjemainnhold)
+                nlResponseProducer.sendNlResponse(nlResponse)
+                log.info("Got item from altinn download queue ${item.archiveReference} and sendt to kafka")
+            } catch (e: IllegalArgumentException) {
+                log.error("Kunne ikke behandle NL-skjema ${item.archiveReference}: ${e.message}")
+            }
         }
         iDownloadQueueExternalBasic.purgeItem(navUsername, navPassword, it.archiveReference)
         log.info("Deleted ${it.archiveReference} from download queue")
