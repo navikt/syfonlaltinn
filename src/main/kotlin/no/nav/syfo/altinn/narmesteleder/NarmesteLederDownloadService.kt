@@ -103,7 +103,7 @@ class NarmesteLederDownloadService(
         }
         val emailValidator = EmailValidator.getInstance()
         if (!emailValidator.isValid(nlEpost)) {
-            throw IllegalArgumentException("Email is not valid $nlEpost")
+            throw IllegalArgumentException("Email is not valid")
         }
     }
 }
