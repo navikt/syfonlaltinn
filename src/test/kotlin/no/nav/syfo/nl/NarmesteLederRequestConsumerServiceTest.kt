@@ -109,7 +109,6 @@ class NarmesteLederRequestConsumerServiceTest : Spek({
             verify(exactly = 0) { database.updateAltinnStatus(any()) }
             verify(exactly = 0) { database.insertAltinnStatus(any()) }
             verify(exactly = 0) { narmesteLederRequestService.sendRequestToAltinn(any()) }
-
         }
 
         it("Should retry errors") {
@@ -118,10 +117,14 @@ class NarmesteLederRequestConsumerServiceTest : Spek({
             runBlocking {
                 service.startConsumer()
             }
-            verify(exactly = 1) { database.updateAltinnStatus(match {
-                it.status == AltinnStatus.Status.SENDT &&
-                        it.sendersReference == "senders_reference"
-            }) }
+            verify(exactly = 1) {
+                database.updateAltinnStatus(
+                    match {
+                        it.status == AltinnStatus.Status.SENDT &&
+                            it.sendersReference == "senders_reference"
+                    }
+                )
+            }
             verify(exactly = 0) { database.insertAltinnStatus(any()) }
             verify(exactly = 1) { narmesteLederRequestService.sendRequestToAltinn(any()) }
         }
@@ -132,10 +135,14 @@ class NarmesteLederRequestConsumerServiceTest : Spek({
             runBlocking {
                 service.startConsumer()
             }
-            verify(exactly = 1) { database.updateAltinnStatus(match {
-                it.status == AltinnStatus.Status.SENDT &&
-                        it.sendersReference == "senders_reference"
-            }) }
+            verify(exactly = 1) {
+                database.updateAltinnStatus(
+                    match {
+                        it.status == AltinnStatus.Status.SENDT &&
+                            it.sendersReference == "senders_reference"
+                    }
+                )
+            }
             verify(exactly = 0) { database.insertAltinnStatus(any()) }
             verify(exactly = 1) { narmesteLederRequestService.sendRequestToAltinn(any()) }
         }
