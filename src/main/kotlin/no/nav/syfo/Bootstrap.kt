@@ -69,7 +69,7 @@ fun main() {
         env.navUsername,
         env.navPassword,
         iPreFillExternalBasic
-    ).apply { }
+    )
     val narmesteLederRequestConsumerService = NarmesteLederRequestConsumerService(
         kafkaConsumer,
         applicationState,
