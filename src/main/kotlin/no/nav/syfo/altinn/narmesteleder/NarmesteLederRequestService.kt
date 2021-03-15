@@ -93,23 +93,26 @@ class NarmesteLederRequestService(
     }
 
     private fun generateFormData(nlRequest: NlRequest): String {
-        val xmlOppgiPersonalLeder = XMLOppgiPersonallederM()
-            .withDataFormatId(DATA_FORMAT_ID)
-            .withDataFormatProvider(DATA_FORMAT_PROVIDER)
-            .withDataFormatVersion(DATA_FORMAT_VERSION.toString())
-            .withSkjemainnhold(
-                XMLSkjemainnhold()
-                    .withSykmeldt(
-                        JAXBElement(
-                            QName("sykmeldt"),
-                            XMLSykmeldt::class.java,
-                            XMLSykmeldt()
-                                .withSykmeldtFoedselsnummer(nlRequest.fnr)
-                                .withSykmeldtNavn(nlRequest.name)
+        val xmlOppgiPersonalLeder = JAXBElement(
+            QName("melding"), XMLOppgiPersonallederM::class.java,
+            XMLOppgiPersonallederM()
+                .withDataFormatId(DATA_FORMAT_ID)
+                .withDataFormatProvider(DATA_FORMAT_PROVIDER)
+                .withDataFormatVersion(DATA_FORMAT_VERSION.toString())
+                .withSkjemainnhold(
+                    XMLSkjemainnhold()
+                        .withSykmeldt(
+                            JAXBElement(
+                                QName("sykmeldt"),
+                                XMLSykmeldt::class.java,
+                                XMLSykmeldt()
+                                    .withSykmeldtFoedselsnummer(nlRequest.fnr)
+                                    .withSykmeldtNavn(nlRequest.name)
+                            )
                         )
-                    )
-                    .withOrganisasjonsnummer(nlRequest.orgnr)
-            )
+                        .withOrganisasjonsnummer(nlRequest.orgnr)
+                )
+        )
         return JAXBUtil.marshall(xmlOppgiPersonalLeder)
     }
 }

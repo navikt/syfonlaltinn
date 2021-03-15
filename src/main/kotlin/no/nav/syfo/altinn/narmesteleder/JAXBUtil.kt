@@ -14,7 +14,7 @@ class JAXBUtil {
             XMLOppgiPersonallederM::class.java
         )
 
-        fun marshall(element: XMLOppgiPersonallederM): String {
+        fun marshall(element: JAXBElement<XMLOppgiPersonallederM>): String {
             val stringWriter = StringWriter()
             val marshaller = JAXBContext.createMarshaller()
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true)

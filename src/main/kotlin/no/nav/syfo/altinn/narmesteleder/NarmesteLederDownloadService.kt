@@ -12,6 +12,7 @@ import no.nav.syfo.altinn.narmesteleder.util.validatePersonAndDNumber
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.metrics.INVALID_NL_SKJEMA
 import no.nav.syfo.log
+import no.nav.syfo.nl.kafka.NlInvalidProducer
 import no.nav.syfo.nl.kafka.NlResponseProducer
 import no.nav.syfo.nl.model.Leder
 import no.nav.syfo.nl.model.NlResponse
@@ -23,7 +24,8 @@ class NarmesteLederDownloadService(
     private val navUsername: String,
     private val navPassword: String,
     private val applicationState: ApplicationState,
-    private val nlResponseProducer: NlResponseProducer
+    private val nlResponseProducer: NlResponseProducer,
+    private val nlInvalidProducer: NlInvalidProducer
 ) {
 
     companion object {
@@ -63,6 +65,7 @@ class NarmesteLederDownloadService(
                 log.info("Got item from altinn download queue ${item.archiveReference} and sendt to kafka")
             } catch (e: ValidationException) {
                 INVALID_NL_SKJEMA.labels(e.type).inc()
+                nlInvalidProducer.send(formData.skjemainnhold.organisasjonsnummer, it)
                 log.error("Kunne ikke behandle NL-skjema ${item.archiveReference}: ${e.message}")
             }
         }
