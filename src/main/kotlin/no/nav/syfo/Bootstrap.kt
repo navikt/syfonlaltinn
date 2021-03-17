@@ -8,6 +8,7 @@ import no.altinn.services.archive.downloadqueue._2012._08.IDownloadQueueExternal
 import no.altinn.services.serviceengine.prefill._2009._10.IPreFillExternalBasic
 import no.nav.syfo.altinn.narmesteleder.NarmesteLederDownloadService
 import no.nav.syfo.altinn.narmesteleder.NarmesteLederRequestService
+import no.nav.syfo.altinn.orgnummer.AltinnOrgnummerLookupFactory
 import no.nav.syfo.application.ApplicationServer
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.createApplicationEngine
@@ -73,10 +74,13 @@ fun main() {
         serviceClass = IPreFillExternalBasic::class.java
     }.create(IPreFillExternalBasic::class.java)
 
+    val altinnOrgnummerLookup = AltinnOrgnummerLookupFactory.getOrgnummerResolver(env.cluster)
+
     val narmesteLederRequestService = NarmesteLederRequestService(
         env.navUsername,
         env.navPassword,
-        iPreFillExternalBasic
+        iPreFillExternalBasic,
+        altinnOrgnummerLookup
     )
     val narmesteLederRequestConsumerService = NarmesteLederRequestConsumerService(
         kafkaConsumer,

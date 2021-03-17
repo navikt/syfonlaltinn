@@ -8,6 +8,7 @@ import no.altinn.schemas.services.serviceengine.prefill._2009._10.PrefillForm
 import no.altinn.schemas.services.serviceengine.prefill._2009._10.PrefillFormBEList
 import no.altinn.schemas.services.serviceengine.prefill._2009._10.PrefillFormTask
 import no.altinn.services.serviceengine.prefill._2009._10.IPreFillExternalBasic
+import no.nav.syfo.altinn.orgnummer.AltinnOrgnummerLookup
 import no.nav.syfo.log
 import no.nav.syfo.nl.model.NlRequest
 import java.time.ZoneOffset
@@ -22,7 +23,8 @@ import javax.xml.namespace.QName
 class NarmesteLederRequestService(
     private val navUsername: String,
     private val navPassword: String,
-    private val iPreFillExternalBasic: IPreFillExternalBasic
+    private val iPreFillExternalBasic: IPreFillExternalBasic,
+    private val altinnOrgnummerLookup: AltinnOrgnummerLookup
 ) {
     companion object {
         private const val NARMESTE_LEDER_TJENESTEKODE = "4596"
@@ -33,12 +35,14 @@ class NarmesteLederRequestService(
     }
 
     fun sendRequestToAltinn(nlRequest: NlRequest): String {
+        val orgnummer = altinnOrgnummerLookup.getOrgnummer(nlRequest.orgnr)
+        val oppdatertNlRequest = nlRequest.copy(orgnr = orgnummer)
         try {
             val receipt = iPreFillExternalBasic.submitAndInstantiatePrefilledFormTaskBasic(
                 navUsername,
                 navPassword,
                 UUID.randomUUID().toString(),
-                getPrefillFormTask(nlRequest),
+                getPrefillFormTask(oppdatertNlRequest),
                 false,
                 true,
                 null,
