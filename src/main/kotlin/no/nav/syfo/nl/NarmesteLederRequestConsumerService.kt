@@ -15,6 +15,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.time.Duration
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import java.util.UUID
 
 class NarmesteLederRequestConsumerService(
     private val kafkaConsumer: KafkaConsumer<String, NlRequestKafkaMessage>,
@@ -43,8 +44,10 @@ class NarmesteLederRequestConsumerService(
 
     private fun sendToAltinn(nlRequest: NlRequest, altinnStatus: AltinnStatus) {
         try {
-            val sendersReference = narmesteLederService.sendRequestToAltinn(nlRequest)
-            database.updateAltinnStatus(altinnStatus.copy(status = AltinnStatus.Status.SENDT, sendersReference = sendersReference))
+            if(nlRequest.requestId != UUID.fromString("fa47da8b-d1bb-4fbe-ab90-cb18a1001f9c")) {
+                val sendersReference = narmesteLederService.sendRequestToAltinn(nlRequest)
+                database.updateAltinnStatus(altinnStatus.copy(status = AltinnStatus.Status.SENDT, sendersReference = sendersReference))
+            }
         } catch (ex: Exception) {
             log.error("Error updating altinn")
             database.updateAltinnStatus(altinnStatus.copy(status = AltinnStatus.Status.ERROR))
