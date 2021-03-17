@@ -26,6 +26,7 @@ class NarmesteLederRequestConsumerService(
 
     suspend fun startConsumer() {
         kafkaConsumer.subscribe(listOf(topic))
+        log.info("Starting consuming topic $topic")
         while (applicationState.ready) {
             kafkaConsumer.poll(Duration.ZERO).forEach {
                 val status = database.getAltinnStatus(it.value().nlRequest.requestId)

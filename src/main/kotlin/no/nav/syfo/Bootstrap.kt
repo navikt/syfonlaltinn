@@ -16,6 +16,7 @@ import no.nav.syfo.kafka.aiven.KafkaUtils
 import no.nav.syfo.kafka.toConsumerConfig
 import no.nav.syfo.kafka.toProducerConfig
 import no.nav.syfo.nl.NarmesteLederRequestConsumerService
+import no.nav.syfo.nl.kafka.NlInvalidProducer
 import no.nav.syfo.nl.kafka.NlResponseProducer
 import no.nav.syfo.nl.kafka.model.NlRequestKafkaMessage
 import no.nav.syfo.nl.kafka.model.NlResponseKafkaMessage
@@ -54,6 +55,13 @@ fun main() {
             .getAivenKafkaConfig()
             .toProducerConfig("syfonlaltinn-producer", JacksonKafkaSerializer::class, StringSerializer::class)
     )
+
+    val invalidKafkaProducer = KafkaProducer<String, Any>(
+        KafkaUtils
+            .getAivenKafkaConfig()
+            .toProducerConfig("syfonlaltinn-producer", JacksonKafkaSerializer::class, StringSerializer::class)
+    )
+
     val kafkaConsumer = KafkaConsumer(
         KafkaUtils.getAivenKafkaConfig().toConsumerConfig("syfonlaltinn", JacksonKafkaDeserializer::class),
         StringDeserializer(),
@@ -69,7 +77,7 @@ fun main() {
         env.navUsername,
         env.navPassword,
         iPreFillExternalBasic
-    ).apply { }
+    )
     val narmesteLederRequestConsumerService = NarmesteLederRequestConsumerService(
         kafkaConsumer,
         applicationState,
@@ -79,12 +87,14 @@ fun main() {
     )
 
     val NlResponseKafkaProducer = NlResponseProducer(kafkaProducer, env.nlResponseTopic)
+    val nlInvalidProducer = NlInvalidProducer(env.nlInvalidTopic, invalidKafkaProducer)
     val narmesteLederDownloadService = NarmesteLederDownloadService(
         iDownloadQueueExternalBasic,
         env.navUsername,
         env.navPassword,
         applicationState,
-        NlResponseKafkaProducer
+        NlResponseKafkaProducer,
+        nlInvalidProducer
     )
 
     startBackgroundJob(applicationState) {

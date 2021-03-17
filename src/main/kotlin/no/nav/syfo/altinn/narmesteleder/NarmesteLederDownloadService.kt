@@ -6,9 +6,13 @@ import no.altinn.schemas.services.archive.downloadqueue._2012._08.DownloadQueueI
 import no.altinn.services.archive.downloadqueue._2012._08.IDownloadQueueExternalBasic
 import no.altinn.services.archive.downloadqueue._2012._08.IDownloadQueueExternalBasicGetDownloadQueueItemsAltinnFaultFaultFaultMessage
 import no.nav.syfo.altinn.narmesteleder.JAXBUtil.Companion.unmarshallNarmesteLederSkjema
+import no.nav.syfo.altinn.narmesteleder.exception.ValidationException
 import no.nav.syfo.altinn.narmesteleder.util.fixEmailFormat
+import no.nav.syfo.altinn.narmesteleder.util.validatePersonAndDNumber
 import no.nav.syfo.application.ApplicationState
+import no.nav.syfo.application.metrics.INVALID_NL_SKJEMA
 import no.nav.syfo.log
+import no.nav.syfo.nl.kafka.NlInvalidProducer
 import no.nav.syfo.nl.kafka.NlResponseProducer
 import no.nav.syfo.nl.model.Leder
 import no.nav.syfo.nl.model.NlResponse
@@ -20,7 +24,8 @@ class NarmesteLederDownloadService(
     private val navUsername: String,
     private val navPassword: String,
     private val applicationState: ApplicationState,
-    private val nlResponseProducer: NlResponseProducer
+    private val nlResponseProducer: NlResponseProducer,
+    private val nlInvalidProducer: NlInvalidProducer
 ) {
 
     companion object {
@@ -58,7 +63,9 @@ class NarmesteLederDownloadService(
                 val nlResponse = toNlResponse(formData.skjemainnhold)
                 nlResponseProducer.sendNlResponse(nlResponse)
                 log.info("Got item from altinn download queue ${item.archiveReference} and sendt to kafka")
-            } catch (e: IllegalArgumentException) {
+            } catch (e: ValidationException) {
+                INVALID_NL_SKJEMA.labels(e.type).inc()
+                nlInvalidProducer.send(formData.skjemainnhold.organisasjonsnummer, it)
                 log.error("Kunne ikke behandle NL-skjema ${item.archiveReference}: ${e.message}")
             }
         }
@@ -98,12 +105,12 @@ class NarmesteLederDownloadService(
     }
 
     private fun validateInputs(nlFnr: String, nlEpost: String) {
-        if (!nlFnr.matches(Regex("^\\d{11}\$"))) {
-            throw IllegalArgumentException("FNR is not 11 digits")
+        if (!validatePersonAndDNumber(nlFnr)) {
+            throw ValidationException("INVALID_FNR", "FNR is not valid")
         }
         val emailValidator = EmailValidator.getInstance()
         if (!emailValidator.isValid(nlEpost)) {
-            throw IllegalArgumentException("Email is not valid")
+            throw ValidationException("INVALID_EMAIL", "Email is not valid")
         }
     }
 }
