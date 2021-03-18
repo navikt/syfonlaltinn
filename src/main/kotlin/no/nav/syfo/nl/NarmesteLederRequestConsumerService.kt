@@ -43,6 +43,7 @@ class NarmesteLederRequestConsumerService(
 
     private fun sendToAltinn(nlRequest: NlRequest, altinnStatus: AltinnStatus) {
         try {
+            log.info("Sender NL-forespørsel for requestId ${nlRequest.requestId}")
             val sendersReference = narmesteLederService.sendRequestToAltinn(nlRequest)
             database.updateAltinnStatus(altinnStatus.copy(status = AltinnStatus.Status.SENDT, sendersReference = sendersReference))
         } catch (ex: Exception) {
