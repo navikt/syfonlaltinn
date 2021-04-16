@@ -43,7 +43,6 @@ fun main() {
     )
     val applicationServer = ApplicationServer(applicationEngine, applicationState)
     applicationServer.start()
-    applicationState.ready = true
 
     val database = Database(env)
     val iDownloadQueueExternalBasic = JaxWsProxyFactoryBean().apply {
@@ -100,6 +99,7 @@ fun main() {
         NlResponseKafkaProducer,
         nlInvalidProducer
     )
+    applicationState.ready = true
 
     startBackgroundJob(applicationState) {
         narmesteLederDownloadService.start()
