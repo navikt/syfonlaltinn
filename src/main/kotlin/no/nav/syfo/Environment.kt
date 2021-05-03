@@ -12,7 +12,7 @@ data class Environment(
     val dbHost: String = getEnvVar("NAIS_DATABASE_SYFONLALTINN_SYFONLALTINN_HOST"),
     val dbPort: String = getEnvVar("NAIS_DATABASE_SYFONLALTINN_SYFONLALTINN_PORT"),
     val dbName: String = getEnvVar("NAIS_DATABASE_SYFONLALTINN_SYFONLALTINN_DATABASE"),
-    val nlResponseTopic: String = "teamsykmelding.syfo-nl-response",
+    val nlResponseTopic: String = "teamsykmelding.syfo-narmesteleder",
     val nlRequestTopic: String = "teamsykmelding.syfo-nl-request",
     val nlInvalidTopic: String = "teamsykmelding.syfo-nl-invalid",
     val cluster: String = getEnvVar("NAIS_CLUSTER_NAME")
