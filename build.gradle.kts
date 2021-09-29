@@ -7,7 +7,7 @@ version = "1.0.0"
 
 val coroutinesVersion = "1.4.2"
 val jacksonVersion = "2.12.0"
-val kluentVersion = "1.61"
+val kluentVersion = "1.64"
 val ktorVersion = "1.5.0"
 val logbackVersion = "1.2.3"
 val logstashEncoderVersion = "6.5"
@@ -51,11 +51,7 @@ val githubPassword: String by project
 
 repositories {
     mavenCentral()
-    jcenter()
-    maven(url = "https://dl.bintray.com/kotlin/ktor")
-    maven(url = "https://dl.bintray.com/spekframework/spek-dev")
     maven(url = "https://packages.confluent.io/maven/")
-    maven(url = "https://kotlin.bintray.com/kotlinx")
     maven {
         url = uri("https://maven.pkg.github.com/navikt/syfosm-common")
         credentials {
