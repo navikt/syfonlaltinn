@@ -2,6 +2,7 @@ package no.nav.syfo.nl
 
 import kotlinx.coroutines.delay
 import no.nav.syfo.altinn.narmesteleder.NarmesteLederRequestService
+import no.nav.syfo.altinn.narmesteleder.db.erSendtSisteUke
 import no.nav.syfo.altinn.narmesteleder.db.getAltinnStatus
 import no.nav.syfo.altinn.narmesteleder.db.insertAltinnStatus
 import no.nav.syfo.altinn.narmesteleder.db.updateAltinnStatus
@@ -29,12 +30,17 @@ class NarmesteLederRequestConsumerService(
         log.info("Starting consuming topic $topic")
         while (applicationState.ready) {
             kafkaConsumer.poll(Duration.ZERO).forEach {
-                val status = database.getAltinnStatus(it.value().nlRequest.requestId)
+                val nlRequest = it.value().nlRequest
+                if (erSendtSisteUke(orgnummer = nlRequest.orgnr, fnr = nlRequest.fnr)) {
+                    log.info("Har sendt tilsvarende NL-skjema som requestId ${nlRequest.requestId} de siste 7 dagene, sender ikke på nytt")
+                    return
+                }
+                val status = database.getAltinnStatus(nlRequest.requestId)
                 when (status?.status) {
-                    null -> sendToAltinn(it.value().nlRequest, insertNewStatus(it.value().nlRequest))
+                    null -> sendToAltinn(nlRequest, insertNewStatus(nlRequest))
                     AltinnStatus.Status.SENDT -> log.info("Message is already sendt to altinn ${status.id} for")
-                    AltinnStatus.Status.ERROR -> sendToAltinn(it.value().nlRequest, status)
-                    AltinnStatus.Status.NEW -> sendToAltinn(it.value().nlRequest, status)
+                    AltinnStatus.Status.ERROR -> sendToAltinn(nlRequest, status)
+                    AltinnStatus.Status.NEW -> sendToAltinn(nlRequest, status)
                 }
             }
             delay(1L)
@@ -65,5 +71,13 @@ class NarmesteLederRequestConsumerService(
         )
         database.insertAltinnStatus(altinnStatus)
         return altinnStatus
+    }
+
+    private fun erSendtSisteUke(
+        orgnummer: String,
+        fnr: String,
+        enUkeSiden: OffsetDateTime = OffsetDateTime.now(ZoneOffset.UTC).minusWeeks(1)
+    ): Boolean {
+        return database.erSendtSisteUke(orgnummer = orgnummer, fnr = fnr, enUkeSiden = enUkeSiden)
     }
 }

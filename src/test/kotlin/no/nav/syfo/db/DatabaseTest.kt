@@ -3,6 +3,7 @@ package no.nav.syfo.db
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.syfo.Environment
+import no.nav.syfo.altinn.narmesteleder.db.erSendtSisteUke
 import no.nav.syfo.altinn.narmesteleder.db.getAltinnStatus
 import no.nav.syfo.altinn.narmesteleder.db.insertAltinnStatus
 import no.nav.syfo.altinn.narmesteleder.db.updateAltinnStatus
@@ -82,6 +83,20 @@ class DatabaseTest : Spek({
             database.updateAltinnStatus(updataStatus)
 
             database.getAltinnStatus(status.id) shouldBeEqualTo updataStatus
+        }
+
+        it("erSendtSisteUke er true hvis melding er sendt for 6 dager siden") {
+            val altinnStatus = getAltinnStatus().copy(fnr = "fnr1", status = AltinnStatus.Status.SENDT, timestamp = OffsetDateTime.now(ZoneOffset.UTC).minusDays(6))
+            database.insertAltinnStatus(altinnStatus)
+
+            database.erSendtSisteUke(orgnummer = "orgnr", fnr = "fnr1", enUkeSiden = OffsetDateTime.now(ZoneOffset.UTC).minusWeeks(1)) shouldBeEqualTo true
+        }
+
+        it("erSendtSisteUke er false hvis melding er sendt for 8 dager siden") {
+            val altinnStatus = getAltinnStatus().copy(fnr = "fnr2", status = AltinnStatus.Status.SENDT, timestamp = OffsetDateTime.now(ZoneOffset.UTC).minusDays(8))
+            database.insertAltinnStatus(altinnStatus)
+
+            database.erSendtSisteUke(orgnummer = "orgnr", fnr = "fnr2", enUkeSiden = OffsetDateTime.now(ZoneOffset.UTC).minusWeeks(1)) shouldBeEqualTo false
         }
     }
 })

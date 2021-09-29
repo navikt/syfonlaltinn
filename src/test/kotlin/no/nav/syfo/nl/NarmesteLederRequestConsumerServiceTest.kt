@@ -7,6 +7,7 @@ import io.mockk.mockkStatic
 import io.mockk.verify
 import kotlinx.coroutines.runBlocking
 import no.nav.syfo.altinn.narmesteleder.NarmesteLederRequestService
+import no.nav.syfo.altinn.narmesteleder.db.erSendtSisteUke
 import no.nav.syfo.altinn.narmesteleder.db.getAltinnStatus
 import no.nav.syfo.altinn.narmesteleder.db.insertAltinnStatus
 import no.nav.syfo.altinn.narmesteleder.db.updateAltinnStatus
@@ -46,6 +47,7 @@ class NarmesteLederRequestConsumerServiceTest : Spek({
         every { kafkaConsumer.poll(any<Duration>()) } returns crs
         every { kafkaConsumer.subscribe(any<List<String>>()) } returns Unit
         every { database.getAltinnStatus(any()) } returns null
+        every { database.erSendtSisteUke(any(), any(), any()) } returns false
     }
 
     describe("Test service") {
@@ -106,6 +108,18 @@ class NarmesteLederRequestConsumerServiceTest : Spek({
             runBlocking {
                 service.startConsumer()
             }
+            verify(exactly = 0) { database.updateAltinnStatus(any()) }
+            verify(exactly = 0) { database.insertAltinnStatus(any()) }
+            verify(exactly = 0) { narmesteLederRequestService.sendRequestToAltinn(any()) }
+        }
+
+        it("sender ikke skjema hvis tilsvarende ble sendt for under en uke siden") {
+            every { database.erSendtSisteUke(any(), any(), any()) } returns true
+
+            runBlocking {
+                service.startConsumer()
+            }
+
             verify(exactly = 0) { database.updateAltinnStatus(any()) }
             verify(exactly = 0) { database.insertAltinnStatus(any()) }
             verify(exactly = 0) { narmesteLederRequestService.sendRequestToAltinn(any()) }
