@@ -33,14 +33,14 @@ class NarmesteLederRequestConsumerService(
                 val nlRequest = it.value().nlRequest
                 if (erSendtSisteUke(orgnummer = nlRequest.orgnr, fnr = nlRequest.fnr)) {
                     log.info("Har sendt tilsvarende NL-skjema som requestId ${nlRequest.requestId} de siste 7 dagene, sender ikke på nytt")
-                    return
-                }
-                val status = database.getAltinnStatus(nlRequest.requestId)
-                when (status?.status) {
-                    null -> sendToAltinn(nlRequest, insertNewStatus(nlRequest))
-                    AltinnStatus.Status.SENDT -> log.info("Message is already sendt to altinn ${status.id} for")
-                    AltinnStatus.Status.ERROR -> sendToAltinn(nlRequest, status)
-                    AltinnStatus.Status.NEW -> sendToAltinn(nlRequest, status)
+                } else {
+                    val status = database.getAltinnStatus(nlRequest.requestId)
+                    when (status?.status) {
+                        null -> sendToAltinn(nlRequest, insertNewStatus(nlRequest))
+                        AltinnStatus.Status.SENDT -> log.info("Message is already sendt to altinn ${status.id} for")
+                        AltinnStatus.Status.ERROR -> sendToAltinn(nlRequest, status)
+                        AltinnStatus.Status.NEW -> sendToAltinn(nlRequest, status)
+                    }
                 }
             }
             delay(1L)
