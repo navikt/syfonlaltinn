@@ -4,6 +4,7 @@ import no.nav.syfo.altinn.narmesteleder.model.AltinnStatus
 import no.nav.syfo.db.DatabaseInterface
 import java.sql.ResultSet
 import java.sql.Timestamp
+import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.UUID
 
@@ -60,6 +61,20 @@ fun DatabaseInterface.updateAltinnStatus(altinnStatus: AltinnStatus) {
         connection.commit()
     }
 }
+
+fun DatabaseInterface.erSendtSisteUke(orgnummer: String, fnr: String, enUkeSiden: OffsetDateTime): Boolean =
+    connection.use { connection ->
+        connection.prepareStatement(
+            """
+            SELECT * FROM status WHERE org_nr = ? AND fnr = ? AND status = 'SENDT' AND timestamp > ?
+            """
+        ).use { ps ->
+            ps.setString(1, orgnummer)
+            ps.setString(2, fnr)
+            ps.setTimestamp(3, Timestamp.from(enUkeSiden.toInstant()))
+            ps.executeQuery().next()
+        }
+    }
 
 private fun ResultSet.toAltinnStatus(): AltinnStatus? {
     return when (next()) {
