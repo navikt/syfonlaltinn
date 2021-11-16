@@ -66,7 +66,7 @@ class NarmesteLederDownloadService(
             } catch (e: ValidationException) {
                 INVALID_NL_SKJEMA.labels(e.type).inc()
                 nlInvalidProducer.send(formData.skjemainnhold.organisasjonsnummer, it)
-                log.error("Kunne ikke behandle NL-skjema ${item.archiveReference}: ${e.message}")
+                log.error("Kunne ikke behandle NL-skjema ${item.archiveReference} for orgnummer ${formData.skjemainnhold.organisasjonsnummer}: ${e.message}")
             }
         }
         iDownloadQueueExternalBasic.purgeItem(navUsername, navPassword, it.archiveReference)
