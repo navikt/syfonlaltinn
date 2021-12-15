@@ -24,6 +24,7 @@ class JAXBUtil {
             return stringWriter.toString()
         }
 
+        @Suppress("UNCHECKED_CAST")
         fun unmarshallNarmesteLederSkjema(value: String): XMLOppgiPersonallederM {
             return (JAXBContext.createUnmarshaller().unmarshal(StringReader(value)) as JAXBElement<XMLOppgiPersonallederM>).value
         }

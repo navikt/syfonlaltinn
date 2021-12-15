@@ -2,6 +2,7 @@ package no.nav.syfo
 
 import io.prometheus.client.hotspot.DefaultExports
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import no.altinn.services.archive.downloadqueue._2012._08.IDownloadQueueExternalBasic
@@ -33,6 +34,7 @@ import org.slf4j.LoggerFactory
 
 val log: Logger = LoggerFactory.getLogger("no.nav.syfo.syfonlaltinn")
 
+@DelicateCoroutinesApi
 fun main() {
     val env = Environment()
     DefaultExports.initialize()
@@ -110,6 +112,7 @@ fun main() {
     }
 }
 
+@DelicateCoroutinesApi
 fun startBackgroundJob(applicationState: ApplicationState, block: suspend CoroutineScope.() -> Unit) {
     GlobalScope.launch {
         try {
