@@ -16,6 +16,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.time.Duration
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
+import java.util.UUID
 
 class NarmesteLederRequestConsumerService(
     private val kafkaConsumer: KafkaConsumer<String, NlRequestKafkaMessage>,
@@ -60,9 +61,17 @@ class NarmesteLederRequestConsumerService(
     }
 
     private fun insertNewStatus(nlRequest: NlRequest): AltinnStatus {
+        val sykmeldingId = nlRequest.sykmeldingId?.let {
+            try {
+                UUID.fromString(nlRequest.sykmeldingId)
+            } catch (e: Exception) {
+                log.warn("Sykmeldingid ${nlRequest.sykmeldingId} er ikke uuid, bruker requestId")
+                nlRequest.requestId
+            } ?: null
+        }
         val altinnStatus = AltinnStatus(
             id = nlRequest.requestId,
-            sykmeldingId = nlRequest.sykmeldingId,
+            sykmeldingId = sykmeldingId,
             orgNr = nlRequest.orgnr,
             fnr = nlRequest.fnr,
             OffsetDateTime.now(ZoneOffset.UTC),

@@ -166,7 +166,7 @@ class NarmesteLederRequestConsumerServiceTest : Spek({
 fun createAltinnStatus(nlRequest: NlRequest, timestamp: OffsetDateTime): AltinnStatus {
     return AltinnStatus(
         id = nlRequest.requestId,
-        sykmeldingId = nlRequest.sykmeldingId,
+        sykmeldingId = UUID.fromString(nlRequest.sykmeldingId),
         orgNr = nlRequest.orgnr,
         fnr = nlRequest.fnr,
         timestamp = timestamp,
@@ -187,7 +187,7 @@ fun getNlRequestMessage(): NlRequestKafkaMessage {
         metadata = KafkaMetadata(timestamp = OffsetDateTime.now(ZoneOffset.UTC), "syfoservice"),
         nlRequest = NlRequest(
             requestId = UUID.randomUUID(),
-            sykmeldingId = UUID.randomUUID(),
+            sykmeldingId = UUID.randomUUID().toString(),
             fnr = "12345678912",
             orgnr = "123456789",
             name = "Syk syk"
