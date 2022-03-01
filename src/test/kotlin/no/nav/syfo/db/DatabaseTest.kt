@@ -1,5 +1,6 @@
 package no.nav.syfo.db
 
+import io.kotest.core.spec.style.FunSpec
 import io.mockk.every
 import io.mockk.mockk
 import no.nav.syfo.Environment
@@ -9,8 +10,6 @@ import no.nav.syfo.altinn.narmesteleder.db.insertAltinnStatus
 import no.nav.syfo.altinn.narmesteleder.db.updateAltinnStatus
 import no.nav.syfo.altinn.narmesteleder.model.AltinnStatus
 import org.amshove.kluent.shouldBeEqualTo
-import org.spekframework.spek2.Spek
-import org.spekframework.spek2.style.specification.describe
 import org.testcontainers.containers.PostgreSQLContainer
 import java.time.Clock
 import java.time.OffsetDateTime
@@ -20,7 +19,7 @@ import kotlin.test.assertFailsWith
 
 class PsqlContainer : PostgreSQLContainer<PsqlContainer>("postgres:12.0")
 
-class DatabaseTest : Spek({
+class DatabaseTest : FunSpec({
     val mockEnv = mockk<Environment>(relaxed = true)
     every { mockEnv.databaseUsername } returns "username"
     every { mockEnv.databasePassword } returns "password"
@@ -34,27 +33,27 @@ class DatabaseTest : Spek({
 
     psqlContainer.start()
 
-    beforeEachTest {
+    beforeTest {
         every { mockEnv.databaseUsername } returns "username"
         every { mockEnv.databasePassword } returns "password"
     }
 
-    describe("Test database") {
-        it("Should fail 4 times then connect") {
+    context("Test database") {
+        test("Should fail 4 times then connect") {
             every { mockEnv.jdbcUrl() } returnsMany (0 until 4).map { "jdbc:postgresql://127.0.0.1:5433/databasename1" } andThen psqlContainer.jdbcUrl
             Database(mockEnv, 5, 0)
         }
-        it("Fail after timeout exeeded") {
+        test("Fail after timeout exeeded") {
             every { mockEnv.jdbcUrl() } returns "jdbc:postgresql://127.0.0.1:5433/databasename1"
             assertFailsWith<RuntimeException> { Database(mockEnv, retries = 5, sleepTime = 0) }
         }
     }
 
-    describe("Test db queries") {
+    context("Test db queries") {
         every { mockEnv.jdbcUrl() } returns psqlContainer.jdbcUrl
         val database = Database(mockEnv)
 
-        it("Insert new sykmeldingStatus") {
+        test("Insert new sykmeldingStatus") {
             val altinnStatus = getAltinnStatus()
             database.insertAltinnStatus(altinnStatus)
 
@@ -65,7 +64,7 @@ class DatabaseTest : Spek({
             queryBySykmeldingId shouldBeEqualTo altinnStatus
         }
 
-        it("Update status") {
+        test("Update status") {
             val altinnStatus = getAltinnStatus()
             database.insertAltinnStatus(altinnStatus)
 
@@ -76,7 +75,7 @@ class DatabaseTest : Spek({
             status!!.status shouldBeEqualTo updated.status
         }
 
-        it("Should update status with senders reference") {
+        test("Should update status with senders reference") {
             val status = getAltinnStatus()
             database.insertAltinnStatus(status)
 
@@ -86,14 +85,14 @@ class DatabaseTest : Spek({
             database.getAltinnStatus(status.id) shouldBeEqualTo updataStatus
         }
 
-        it("erSendtSisteUke er true hvis melding er sendt for 6 dager siden") {
+        test("erSendtSisteUke er true hvis melding er sendt for 6 dager siden") {
             val altinnStatus = getAltinnStatus().copy(fnr = "fnr1", status = AltinnStatus.Status.SENDT, timestamp = getTickMillis().minusDays(6))
             database.insertAltinnStatus(altinnStatus)
 
             database.erSendtSisteUke(orgnummer = "orgnr", fnr = "fnr1", enUkeSiden = getTickMillis().minusWeeks(1)) shouldBeEqualTo true
         }
 
-        it("erSendtSisteUke er false hvis melding er sendt for 8 dager siden") {
+        test("erSendtSisteUke er false hvis melding er sendt for 8 dager siden") {
             val altinnStatus = getAltinnStatus().copy(fnr = "fnr2", status = AltinnStatus.Status.SENDT, timestamp = getTickMillis().minusDays(8))
             database.insertAltinnStatus(altinnStatus)
 
