@@ -1,5 +1,6 @@
 package no.nav.syfo.nl
 
+import io.kotest.core.spec.style.FunSpec
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -21,15 +22,13 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.TopicPartition
-import org.spekframework.spek2.Spek
-import org.spekframework.spek2.style.specification.describe
 import java.time.Duration
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.UUID
 import kotlin.test.assertFails
 
-class NarmesteLederRequestConsumerServiceTest : Spek({
+class NarmesteLederRequestConsumerServiceTest : FunSpec({
 
     val kafkaConsumer = mockk<KafkaConsumer<String, NlRequestKafkaMessage>>()
     val applicationState = mockk<ApplicationState>()
@@ -39,7 +38,7 @@ class NarmesteLederRequestConsumerServiceTest : Spek({
 
     val service = NarmesteLederRequestConsumerService(kafkaConsumer, applicationState, "topic", narmesteLederRequestService, database)
     val crs = createConsumerRecord()
-    beforeEachTest {
+    beforeTest {
         clearAllMocks()
         every { database.insertAltinnStatus(any()) } returns Unit
         every { database.updateAltinnStatus(any()) } returns Unit
@@ -50,13 +49,11 @@ class NarmesteLederRequestConsumerServiceTest : Spek({
         every { database.erSendtSisteUke(any(), any(), any()) } returns false
     }
 
-    describe("Test service") {
-        it("should send to altinn") {
+    context("Test service") {
+        test("should send to altinn") {
             every { narmesteLederRequestService.sendRequestToAltinn(any()) } returns "senders_reference"
 
-            runBlocking {
-                service.startConsumer()
-            }
+            service.startConsumer()
 
             val cr = crs.first()
             verify(exactly = 1) { narmesteLederRequestService.sendRequestToAltinn(cr.value().nlRequest) }
@@ -70,14 +67,14 @@ class NarmesteLederRequestConsumerServiceTest : Spek({
             verify(exactly = 1) {
                 database.updateAltinnStatus(
                     match {
-                        it.status == AltinnStatus.Status.SENDT
-                        it.sendersReference == "senders_reference"
+                        it.status == AltinnStatus.Status.SENDT &&
+                            it.sendersReference == "senders_reference"
                     }
                 )
             }
         }
 
-        it("Should update db with error when fails to send to altinn") {
+        test("Should update db with error when fails to send to altinn") {
             every { narmesteLederRequestService.sendRequestToAltinn(any()) } throws RuntimeException("ERROR FROM ALTINN")
             assertFails {
                 runBlocking {
@@ -103,34 +100,32 @@ class NarmesteLederRequestConsumerServiceTest : Spek({
             }
         }
 
-        it("Should not send already sent message") {
+        test("Should not send already sent message") {
             every { database.getAltinnStatus(any()) } returns createAltinnStatus(crs.first().value().nlRequest, OffsetDateTime.now(ZoneOffset.UTC)).copy(status = AltinnStatus.Status.SENDT)
-            runBlocking {
-                service.startConsumer()
-            }
+
+            service.startConsumer()
+
             verify(exactly = 0) { database.updateAltinnStatus(any()) }
             verify(exactly = 0) { database.insertAltinnStatus(any()) }
             verify(exactly = 0) { narmesteLederRequestService.sendRequestToAltinn(any()) }
         }
 
-        it("sender ikke skjema hvis tilsvarende ble sendt for under en uke siden") {
+        test("sender ikke skjema hvis tilsvarende ble sendt for under en uke siden") {
             every { database.erSendtSisteUke(any(), any(), any()) } returns true
 
-            runBlocking {
-                service.startConsumer()
-            }
+            service.startConsumer()
 
             verify(exactly = 0) { database.updateAltinnStatus(any()) }
             verify(exactly = 0) { database.insertAltinnStatus(any()) }
             verify(exactly = 0) { narmesteLederRequestService.sendRequestToAltinn(any()) }
         }
 
-        it("Should retry errors") {
+        test("Should retry errors") {
             every { database.getAltinnStatus(any()) } returns createAltinnStatus(crs.first().value().nlRequest, OffsetDateTime.now(ZoneOffset.UTC)).copy(status = AltinnStatus.Status.ERROR)
             every { narmesteLederRequestService.sendRequestToAltinn(any()) } returns "senders_reference"
-            runBlocking {
-                service.startConsumer()
-            }
+
+            service.startConsumer()
+
             verify(exactly = 1) {
                 database.updateAltinnStatus(
                     match {
@@ -143,12 +138,12 @@ class NarmesteLederRequestConsumerServiceTest : Spek({
             verify(exactly = 1) { narmesteLederRequestService.sendRequestToAltinn(any()) }
         }
 
-        it("Should retry when status = NEW") {
+        test("Should retry when status = NEW") {
             every { database.getAltinnStatus(any()) } returns createAltinnStatus(crs.first().value().nlRequest, OffsetDateTime.now(ZoneOffset.UTC)).copy(status = AltinnStatus.Status.NEW)
             every { narmesteLederRequestService.sendRequestToAltinn(any()) } returns "senders_reference"
-            runBlocking {
-                service.startConsumer()
-            }
+
+            service.startConsumer()
+
             verify(exactly = 1) {
                 database.updateAltinnStatus(
                     match {
