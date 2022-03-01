@@ -13,7 +13,7 @@ val HTTP_HISTOGRAM: Histogram = Histogram.Builder()
     .register()
 
 val INVALID_NL_SKJEMA: Counter = Counter.build()
-    .name(METRICS_NS)
+    .namespace(METRICS_NS)
     .labelNames("error_type")
     .name("invalid_nl_schema")
     .help("Counts number of invalid NL schema sendt by arbeidsgiver")

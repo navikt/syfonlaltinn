@@ -11,18 +11,18 @@ val kluentVersion = "1.68"
 val ktorVersion = "1.6.7"
 val logbackVersion = "1.2.10"
 val logstashEncoderVersion = "7.0.1"
-val prometheusVersion = "0.14.1"
+val prometheusVersion = "0.15.0"
 val spekVersion = "2.0.17"
 val smCommonVersion = "1.a92720c"
 val mockkVersion = "1.12.2"
-val nimbusdsVersion = "9.18"
+val nimbusdsVersion = "9.19"
 val altinnDownloadQueueVersion = "1.2020.10.21-14.38-e6bb56478815"
 val altinnPrefillVersion = "1.2020.10.21-14.38-e6bb56478815"
-val cxfVersion = "3.3.8"
+val cxfVersion = "3.4.5"
 val jaxwsToolsVersion = "2.3.1"
 val javaxActivationVersion = "1.2.0"
 val postgresVersion = "42.3.2"
-val flywayVersion = "8.4.3"
+val flywayVersion = "8.5.0"
 val hikariVersion = "5.0.1"
 val testContainerVersion = "1.16.3"
 val digisyfoNarmesteLederVersion = "1.2020.10.07-08.40-90b3ab7bad15"
@@ -63,7 +63,7 @@ repositories {
 
 
 dependencies {
-    implementation(kotlin("stdlib"))
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-slf4j:$coroutinesVersion")
     implementation("io.prometheus:simpleclient_hotspot:$prometheusVersion")
