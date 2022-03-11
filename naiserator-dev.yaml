@@ -50,6 +50,10 @@ spec:
   ingresses:
     - "https://syfonlaltinn.dev.intern.nav.no"
   webproxy: true
+  azure:
+    application:
+      enabled: true
+      tenant: trygdeetaten.no
   envFrom:
     - secret: syfonlaltinn-secret
   env:
@@ -59,3 +63,7 @@ spec:
       value: https://tt02.altinn.no/ServiceEngineExternal/PrefillBasic.svc
     - name: KAFKA_CLIENT_ID
       value: syfonlaltinn
+    - name: PDL_GRAPHQL_PATH
+      value: https://pdl-api.dev-fss-pub.nais.io/graphql
+    - name: PDL_SCOPE
+      value: api://dev-fss.pdl.pdl-api/.default

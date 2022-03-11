@@ -17,6 +17,7 @@ import no.nav.syfo.nl.kafka.NlResponseProducer
 import no.nav.syfo.nl.model.Leder
 import no.nav.syfo.nl.model.NlResponse
 import no.nav.syfo.nl.model.Sykmeldt
+import no.nav.syfo.pdl.client.PdlClient
 import org.apache.commons.validator.routines.EmailValidator
 
 class NarmesteLederDownloadService(
@@ -25,7 +26,8 @@ class NarmesteLederDownloadService(
     private val navPassword: String,
     private val applicationState: ApplicationState,
     private val nlResponseProducer: NlResponseProducer,
-    private val nlInvalidProducer: NlInvalidProducer
+    private val nlInvalidProducer: NlInvalidProducer,
+    private val pdlClient: PdlClient
 ) {
 
     companion object {
@@ -41,7 +43,7 @@ class NarmesteLederDownloadService(
         }
     }
 
-    private fun pollDownloadQueueAndHandle() {
+    private suspend fun pollDownloadQueueAndHandle() {
         try {
             val items = iDownloadQueueExternalBasic.getDownloadQueueItems(navUsername, navPassword, SERVICE_CODE)
             log.info("Got itmes from download queue from altinn ${items.downloadQueueItemBE.size}")
@@ -54,7 +56,7 @@ class NarmesteLederDownloadService(
         }
     }
 
-    private fun handleDownloadItem(it: DownloadQueueItemBE) {
+    private suspend fun handleDownloadItem(it: DownloadQueueItemBE) {
         val item = iDownloadQueueExternalBasic.getArchivedFormTaskBasicDQ(navUsername, navPassword, it.archiveReference, LANGUAGE_ID, true)
 
         item.forms.archivedFormDQBE.forEach {
@@ -72,7 +74,7 @@ class NarmesteLederDownloadService(
         iDownloadQueueExternalBasic.purgeItem(navUsername, navPassword, it.archiveReference)
         log.info("Deleted ${it.archiveReference} from download queue")
     }
-    private fun toNlResponse(skjemaInnhold: XMLSkjemainnhold): NlResponse {
+    private suspend fun toNlResponse(skjemaInnhold: XMLSkjemainnhold): NlResponse {
         val orgnummer = skjemaInnhold.organisasjonsnummer
         val utbetalesLonn = skjemaInnhold.utbetalesLonn?.value
         var nlEpost = skjemaInnhold.naermesteLeder.value.naermesteLederEpost.value
@@ -86,19 +88,20 @@ class NarmesteLederDownloadService(
         nlEpost = fixEmailFormat(nlEpost)
 
         validateInputs(nlFnr, nlEpost)
-
+        val pdlNlFnr = pdlClient.getGjeldendeFnr(nlFnr)
+        val sykmeldtPdlFnr = pdlClient.getGjeldendeFnr(sykmeldtFnr)
         return NlResponse(
             orgnummer = orgnummer,
             utbetalesLonn = utbetalesLonn,
             leder = Leder(
-                fnr = nlFnr,
+                fnr = pdlNlFnr,
                 mobil = nlMobil,
                 epost = nlEpost,
                 fornavn = nlFornavn,
                 etternavn = nlEtternavn
             ),
             sykmeldt = Sykmeldt(
-                fnr = sykmeldtFnr,
+                fnr = sykmeldtPdlFnr,
                 navn = sykmeldtNavn
             )
         )
