@@ -7,6 +7,7 @@ import generated.XMLSykmeldt
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -21,6 +22,7 @@ import no.altinn.services.archive.downloadqueue._2012._08.IDownloadQueueExternal
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.nl.kafka.NlInvalidProducer
 import no.nav.syfo.nl.kafka.NlResponseProducer
+import no.nav.syfo.pdl.client.PdlClient
 import javax.xml.bind.JAXBElement
 import javax.xml.namespace.QName
 
@@ -30,8 +32,16 @@ class NarmesteLederDownloadServiceTest : FunSpec({
     val applicationState = mockk<ApplicationState>()
     val nlResponseProducer = mockk<NlResponseProducer>()
     val nlInvalidProducer = mockk<NlInvalidProducer>()
-
-    val service = NarmesteLederDownloadService(iDownload, "NAV", "PASSWORD", applicationState, nlResponseProducer, nlInvalidProducer)
+    val pdlClient = mockk<PdlClient>(relaxed = true)
+    val service = NarmesteLederDownloadService(
+        iDownload,
+        "NAV",
+        "PASSWORD",
+        applicationState,
+        nlResponseProducer,
+        nlInvalidProducer,
+        pdlClient
+    )
     mockkStatic("kotlinx.coroutines.DelayKt")
 
     beforeTest {
@@ -49,6 +59,7 @@ class NarmesteLederDownloadServiceTest : FunSpec({
             verify(exactly = 1) { iDownload.getArchivedFormTaskBasicDQ("NAV", "PASSWORD", "1", 1033, true) }
             verify(exactly = 1) { nlResponseProducer.sendNlResponse(any()) }
             verify(exactly = 0) { nlInvalidProducer.send(any(), any()) }
+            coVerify(exactly = 2) { pdlClient.getGjeldendeFnr(any()) }
         }
 
         test("Should not handle incorrect fnr") {

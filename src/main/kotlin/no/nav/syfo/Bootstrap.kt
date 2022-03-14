@@ -13,7 +13,9 @@ import no.nav.syfo.altinn.orgnummer.AltinnOrgnummerLookupFactory
 import no.nav.syfo.application.ApplicationServer
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.createApplicationEngine
+import no.nav.syfo.azuread.AccessTokenClient
 import no.nav.syfo.db.Database
+import no.nav.syfo.httpclient.HttpClientFactory
 import no.nav.syfo.kafka.aiven.KafkaUtils
 import no.nav.syfo.kafka.toConsumerConfig
 import no.nav.syfo.kafka.toProducerConfig
@@ -24,6 +26,7 @@ import no.nav.syfo.nl.kafka.model.NlRequestKafkaMessage
 import no.nav.syfo.nl.kafka.model.NlResponseKafkaMessage
 import no.nav.syfo.nl.kafka.util.JacksonKafkaDeserializer
 import no.nav.syfo.nl.kafka.util.JacksonKafkaSerializer
+import no.nav.syfo.pdl.client.PdlClient
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -72,6 +75,13 @@ fun main() {
         StringDeserializer(),
         JacksonKafkaDeserializer(NlRequestKafkaMessage::class)
     )
+    val httpclient = HttpClientFactory.getHttpClient()
+    val pdlClient = PdlClient(
+        HttpClientFactory.getHttpClient(), env.pdlGraphqlPath, env.pdlScope,
+        AccessTokenClient(
+            env.aadAccessTokenUrl, env.clientId, env.clientSecret, httpclient
+        )
+    )
 
     val iPreFillExternalBasic = JaxWsProxyFactoryBean().apply {
         address = env.altinnPrefillUrl
@@ -102,7 +112,8 @@ fun main() {
         env.navPassword,
         applicationState,
         nlResponseKafkaProducer,
-        nlInvalidProducer
+        nlInvalidProducer,
+        pdlClient
     )
     applicationState.ready = true
 

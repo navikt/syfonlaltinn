@@ -1,0 +1,8 @@
+query($ident: ID!){
+  identer: hentIdenter(ident: $ident, historikk: false, grupper: FOLKEREGISTERIDENT) {
+      identer {
+        ident,
+        gruppe
+      }
+    }
+}
