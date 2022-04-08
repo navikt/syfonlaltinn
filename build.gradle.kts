@@ -6,28 +6,30 @@ group = "no.nav.syfo"
 version = "1.0.0"
 
 val coroutinesVersion = "1.6.0"
-val jacksonVersion = "2.13.1"
+val jacksonVersion = "2.13.2"
+val jacksonPatchVersion = "2.13.2.2"
+val jacksonBomVersion = "2.13.2.20220328"
 val kluentVersion = "1.68"
-val ktorVersion = "1.6.7"
-val logbackVersion = "1.2.10"
+val ktorVersion = "1.6.8"
+val logbackVersion = "1.2.11"
 val logstashEncoderVersion = "7.0.1"
 val prometheusVersion = "0.15.0"
-val kotestVersion = "5.1.0"
+val kotestVersion = "5.2.2"
 val smCommonVersion = "1.a92720c"
-val mockkVersion = "1.12.2"
-val nimbusdsVersion = "9.19"
+val mockkVersion = "1.12.3"
+val nimbusdsVersion = "9.21"
 val altinnDownloadQueueVersion = "1.2020.10.21-14.38-e6bb56478815"
 val altinnPrefillVersion = "1.2020.10.21-14.38-e6bb56478815"
 val cxfVersion = "3.3.8"
 val jaxwsToolsVersion = "2.3.1"
 val javaxActivationVersion = "1.2.0"
-val postgresVersion = "42.3.2"
-val flywayVersion = "8.5.0"
+val postgresVersion = "42.3.3"
+val flywayVersion = "8.5.4"
 val hikariVersion = "5.0.1"
 val testContainerVersion = "1.16.3"
 val digisyfoNarmesteLederVersion = "1.2020.10.07-08.40-90b3ab7bad15"
 val commonsValidatorVersion = "1.7"
-val kotlinVersion = "1.6.0"
+val kotlinVersion = "1.6.20"
 val confluentVersion = "7.0.1"
 tasks.withType<Jar> {
     manifest.attributes["Main-Class"] = "no.nav.syfo.BootstrapKt"
@@ -35,7 +37,7 @@ tasks.withType<Jar> {
 
 plugins {
     id("org.jmailen.kotlinter") version "3.6.0"
-    kotlin("jvm") version "1.6.0"
+    kotlin("jvm") version "1.6.20"
     id("com.diffplug.spotless") version "5.16.0"
     id("com.github.johnrengelman.shadow") version "7.0.0"
     jacoco
@@ -80,10 +82,13 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
 
+    implementation("com.fasterxml.jackson:jackson-bom:$jacksonBomVersion")
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonPatchVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-jaxb-annotations:$jacksonVersion")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
+
     implementation("no.nav.tjenestespesifikasjoner:altinn-download-queue-external:$altinnDownloadQueueVersion")
     implementation("no.nav.tjenestespesifikasjoner:altinn-pre-fill:$altinnPrefillVersion")
     implementation("no.nav.tjenestespesifikasjoner:digisyfo-naermesteLeder:$digisyfoNarmesteLederVersion")

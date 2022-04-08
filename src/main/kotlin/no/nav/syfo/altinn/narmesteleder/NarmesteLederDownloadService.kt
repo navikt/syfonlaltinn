@@ -18,6 +18,7 @@ import no.nav.syfo.nl.model.Leder
 import no.nav.syfo.nl.model.NlResponse
 import no.nav.syfo.nl.model.Sykmeldt
 import no.nav.syfo.pdl.client.PdlClient
+import no.nav.syfo.pdl.client.exception.PersonNotFoundException
 import org.apache.commons.validator.routines.EmailValidator
 
 class NarmesteLederDownloadService(
@@ -27,7 +28,8 @@ class NarmesteLederDownloadService(
     private val applicationState: ApplicationState,
     private val nlResponseProducer: NlResponseProducer,
     private val nlInvalidProducer: NlInvalidProducer,
-    private val pdlClient: PdlClient
+    private val pdlClient: PdlClient,
+    private val cluster: String
 ) {
 
     companion object {
@@ -46,7 +48,7 @@ class NarmesteLederDownloadService(
     private suspend fun pollDownloadQueueAndHandle() {
         try {
             val items = iDownloadQueueExternalBasic.getDownloadQueueItems(navUsername, navPassword, SERVICE_CODE)
-            if(items.downloadQueueItemBE.size > 0) {
+            if (items.downloadQueueItemBE.size > 0) {
                 log.info("Got itmes from download queue from altinn ${items.downloadQueueItemBE.size}")
             }
             items.downloadQueueItemBE.forEach { handleDownloadItem(it) }
@@ -71,6 +73,12 @@ class NarmesteLederDownloadService(
                 INVALID_NL_SKJEMA.labels(e.type).inc()
                 nlInvalidProducer.send(formData.skjemainnhold.organisasjonsnummer, it)
                 log.error("Kunne ikke behandle NL-skjema ${item.archiveReference} for orgnummer ${formData.skjemainnhold.organisasjonsnummer}: ${e.message}")
+            } catch (e: PersonNotFoundException) {
+                if (cluster == "dev-gcp") {
+                    log.error("Ignorerer testperson som ikke finnes i PDL i dev")
+                } else {
+                    throw e
+                }
             }
         }
         iDownloadQueueExternalBasic.purgeItem(navUsername, navPassword, it.archiveReference)

@@ -40,7 +40,8 @@ class NarmesteLederDownloadServiceTest : FunSpec({
         applicationState,
         nlResponseProducer,
         nlInvalidProducer,
-        pdlClient
+        pdlClient,
+        "prod-gcp"
     )
     mockkStatic("kotlinx.coroutines.DelayKt")
 
