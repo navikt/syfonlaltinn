@@ -46,7 +46,7 @@ class NarmesteLederDownloadService(
     private suspend fun pollDownloadQueueAndHandle() {
         try {
             val items = iDownloadQueueExternalBasic.getDownloadQueueItems(navUsername, navPassword, SERVICE_CODE)
-            if(items.downloadQueueItemBE.size > 0) {
+            if (items.downloadQueueItemBE.size > 0) {
                 log.info("Got itmes from download queue from altinn ${items.downloadQueueItemBE.size}")
             }
             items.downloadQueueItemBE.forEach { handleDownloadItem(it) }
