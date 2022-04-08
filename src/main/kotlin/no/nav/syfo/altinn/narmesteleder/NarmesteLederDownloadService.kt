@@ -56,11 +56,7 @@ class NarmesteLederDownloadService(
             log.error("Error getting items from DownloadQueueu" + ex.faultInfo.altinnErrorMessage)
         } catch (ex: Exception) {
             log.error("Error getting download items from altinn", ex)
-            if (ex is PersonNotFoundException && cluster == "dev-gcp") {
-                log.error("Ignorerer testperson som ikke finnes i PDL i dev")
-            } else {
-                throw ex
-            }
+            throw ex
         }
     }
 
@@ -77,6 +73,12 @@ class NarmesteLederDownloadService(
                 INVALID_NL_SKJEMA.labels(e.type).inc()
                 nlInvalidProducer.send(formData.skjemainnhold.organisasjonsnummer, it)
                 log.error("Kunne ikke behandle NL-skjema ${item.archiveReference} for orgnummer ${formData.skjemainnhold.organisasjonsnummer}: ${e.message}")
+            } catch (e: PersonNotFoundException) {
+                if (cluster == "dev-gcp") {
+                    log.error("Ignorerer testperson som ikke finnes i PDL i dev")
+                } else {
+                    throw e
+                }
             }
         }
         iDownloadQueueExternalBasic.purgeItem(navUsername, navPassword, it.archiveReference)
