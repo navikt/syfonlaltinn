@@ -18,6 +18,7 @@ import no.nav.syfo.nl.model.Leder
 import no.nav.syfo.nl.model.NlResponse
 import no.nav.syfo.nl.model.Sykmeldt
 import no.nav.syfo.pdl.client.PdlClient
+import no.nav.syfo.pdl.client.exception.PersonNotFoundException
 import org.apache.commons.validator.routines.EmailValidator
 
 class NarmesteLederDownloadService(
@@ -27,7 +28,8 @@ class NarmesteLederDownloadService(
     private val applicationState: ApplicationState,
     private val nlResponseProducer: NlResponseProducer,
     private val nlInvalidProducer: NlInvalidProducer,
-    private val pdlClient: PdlClient
+    private val pdlClient: PdlClient,
+    private val cluster: String
 ) {
 
     companion object {
@@ -54,7 +56,11 @@ class NarmesteLederDownloadService(
             log.error("Error getting items from DownloadQueueu" + ex.faultInfo.altinnErrorMessage)
         } catch (ex: Exception) {
             log.error("Error getting download items from altinn", ex)
-            throw ex
+            if (ex is PersonNotFoundException && cluster == "dev-gcp") {
+                log.error("Ignorerer testperson som ikke finnes i PDL i dev")
+            } else {
+                throw ex
+            }
         }
     }
 

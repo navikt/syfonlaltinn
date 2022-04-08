@@ -113,7 +113,8 @@ fun main() {
         applicationState,
         nlResponseKafkaProducer,
         nlInvalidProducer,
-        pdlClient
+        pdlClient,
+        env.cluster
     )
     applicationState.ready = true
 
