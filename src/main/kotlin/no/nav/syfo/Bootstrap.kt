@@ -48,7 +48,6 @@ fun main() {
         applicationState
     )
     val applicationServer = ApplicationServer(applicationEngine, applicationState)
-    applicationServer.start()
 
     val database = Database(env)
     val iDownloadQueueExternalBasic = JaxWsProxyFactoryBean().apply {
@@ -116,7 +115,6 @@ fun main() {
         pdlClient,
         env.cluster
     )
-    applicationState.ready = true
 
     startBackgroundJob(applicationState) {
         narmesteLederDownloadService.start()
@@ -125,6 +123,8 @@ fun main() {
     startBackgroundJob(applicationState) {
         narmesteLederRequestConsumerService.startConsumer()
     }
+
+    applicationServer.start()
 }
 
 @DelicateCoroutinesApi
