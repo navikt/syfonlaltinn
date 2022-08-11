@@ -72,7 +72,7 @@ class NarmesteLederDownloadService(
             } catch (e: ValidationException) {
                 INVALID_NL_SKJEMA.labels(e.type).inc()
                 nlInvalidProducer.send(formData.skjemainnhold.organisasjonsnummer, it)
-                log.error("Kunne ikke behandle NL-skjema ${item.archiveReference} for orgnummer ${formData.skjemainnhold.organisasjonsnummer}: ${e.message}")
+                log.warn("Kunne ikke behandle NL-skjema ${item.archiveReference} for orgnummer ${formData.skjemainnhold.organisasjonsnummer}: ${e.message}")
             } catch (e: PersonNotFoundException) {
                 if (cluster == "dev-gcp") {
                     log.error("Ignorerer testperson som ikke finnes i PDL i dev")
