@@ -8,21 +8,21 @@ version = "1.0.0"
 val coroutinesVersion = "1.6.4"
 val jacksonVersion = "2.13.3"
 val kluentVersion = "1.68"
-val ktorVersion = "2.0.3"
+val ktorVersion = "2.1.0"
 val logbackVersion = "1.2.11"
 val logstashEncoderVersion = "7.2"
 val prometheusVersion = "0.16.0"
-val kotestVersion = "5.4.1"
+val kotestVersion = "5.4.2"
 val smCommonVersion = "1.f132f2b"
 val mockkVersion = "1.12.5"
-val nimbusdsVersion = "9.22"
+val nimbusdsVersion = "9.24.2"
 val altinnDownloadQueueVersion = "1.2020.10.21-14.38-e6bb56478815"
 val altinnPrefillVersion = "1.2020.10.21-14.38-e6bb56478815"
 val cxfVersion = "3.3.8"
 val jaxwsToolsVersion = "2.3.1"
 val javaxActivationVersion = "1.2.0"
-val postgresVersion = "42.4.1"
-val flywayVersion = "8.5.10"
+val postgresVersion = "42.4.2"
+val flywayVersion = "9.1.6"
 val hikariVersion = "5.0.1"
 val testContainerVersion = "1.17.3"
 val digisyfoNarmesteLederVersion = "1.2020.10.07-08.40-90b3ab7bad15"
@@ -77,7 +77,9 @@ dependencies {
     implementation("io.ktor:ktor-server-call-id:$ktorVersion")
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("io.ktor:ktor-client-apache:$ktorVersion")
+    implementation("io.ktor:ktor-client-apache:$ktorVersion"){
+        exclude(group = "commons-codec", module = "commons-codec")
+    }
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
@@ -102,7 +104,9 @@ dependencies {
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("no.nav.helse:syfosm-common-kafka:$smCommonVersion")
-    implementation("commons-validator:commons-validator:$commonsValidatorVersion")
+    implementation("commons-validator:commons-validator:$commonsValidatorVersion"){
+        exclude(group = "commons-collections", module = "commons-collections")
+    }
 
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
