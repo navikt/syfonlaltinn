@@ -4,13 +4,16 @@ import generated.XMLSkjemainnhold
 import kotlinx.coroutines.delay
 import no.altinn.schemas.services.archive.downloadqueue._2012._08.DownloadQueueItemBE
 import no.altinn.services.archive.downloadqueue._2012._08.IDownloadQueueExternalBasic
+import no.altinn.services.archive.downloadqueue._2012._08.IDownloadQueueExternalBasicGetArchivedFormTaskBasicDQAltinnFaultFaultFaultMessage
 import no.altinn.services.archive.downloadqueue._2012._08.IDownloadQueueExternalBasicGetDownloadQueueItemsAltinnFaultFaultFaultMessage
+import no.altinn.services.archive.downloadqueue._2012._08.IDownloadQueueExternalBasicPurgeItemAltinnFaultFaultFaultMessage
 import no.nav.syfo.altinn.narmesteleder.JAXBUtil.Companion.unmarshallNarmesteLederSkjema
 import no.nav.syfo.altinn.narmesteleder.exception.ValidationException
 import no.nav.syfo.altinn.narmesteleder.util.fixEmailFormat
 import no.nav.syfo.altinn.narmesteleder.util.validatePersonAndDNumber
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.application.metrics.INVALID_NL_SKJEMA
+import no.nav.syfo.helpers.retry
 import no.nav.syfo.log
 import no.nav.syfo.nl.kafka.NlInvalidProducer
 import no.nav.syfo.nl.kafka.NlResponseProducer
@@ -20,6 +23,7 @@ import no.nav.syfo.nl.model.Sykmeldt
 import no.nav.syfo.pdl.client.PdlClient
 import no.nav.syfo.pdl.client.exception.PersonNotFoundException
 import org.apache.commons.validator.routines.EmailValidator
+import java.io.IOException
 
 class NarmesteLederDownloadService(
     private val iDownloadQueueExternalBasic: IDownloadQueueExternalBasic,
@@ -47,13 +51,22 @@ class NarmesteLederDownloadService(
 
     private suspend fun pollDownloadQueueAndHandle() {
         try {
-            val items = iDownloadQueueExternalBasic.getDownloadQueueItems(navUsername, navPassword, SERVICE_CODE)
+            val items = retry(
+                callName = "getDownloadQueueItems",
+                retryIntervals = arrayOf(500L, 1000L, 300L),
+                legalExceptions = arrayOf(IOException::class, IDownloadQueueExternalBasicGetDownloadQueueItemsAltinnFaultFaultFaultMessage::class)
+            ) {
+                iDownloadQueueExternalBasic.getDownloadQueueItems(navUsername, navPassword, SERVICE_CODE)
+            }
             if (items.downloadQueueItemBE.size > 0) {
                 log.info("Got itmes from download queue from altinn ${items.downloadQueueItemBE.size}")
             }
             items.downloadQueueItemBE.forEach { handleDownloadItem(it) }
         } catch (ex: IDownloadQueueExternalBasicGetDownloadQueueItemsAltinnFaultFaultFaultMessage) {
-            log.error("Error getting items from DownloadQueueu" + ex.faultInfo.altinnErrorMessage)
+            log.error("Error getting items from DownloadQueue" + ex.faultInfo.altinnErrorMessage)
+        } catch (ex: IDownloadQueueExternalBasicPurgeItemAltinnFaultFaultFaultMessage) {
+            log.error("Error deleting item from DownloadQueue" + ex.faultInfo.altinnErrorMessage)
+            throw ex
         } catch (ex: Exception) {
             log.error("Error getting download items from altinn", ex)
             throw ex
@@ -61,7 +74,13 @@ class NarmesteLederDownloadService(
     }
 
     private suspend fun handleDownloadItem(it: DownloadQueueItemBE) {
-        val item = iDownloadQueueExternalBasic.getArchivedFormTaskBasicDQ(navUsername, navPassword, it.archiveReference, LANGUAGE_ID, true)
+        val item = retry(
+            callName = "getArchivedFormTaskBasicDQ",
+            retryIntervals = arrayOf(500L, 1000L, 300L),
+            legalExceptions = arrayOf(IOException::class, IDownloadQueueExternalBasicGetArchivedFormTaskBasicDQAltinnFaultFaultFaultMessage::class)
+        ) {
+            iDownloadQueueExternalBasic.getArchivedFormTaskBasicDQ(navUsername, navPassword, it.archiveReference, LANGUAGE_ID, true)
+        }
 
         item.forms.archivedFormDQBE.forEach {
             val formData = unmarshallNarmesteLederSkjema(it.formData)
@@ -81,7 +100,13 @@ class NarmesteLederDownloadService(
                 }
             }
         }
-        iDownloadQueueExternalBasic.purgeItem(navUsername, navPassword, it.archiveReference)
+        retry(
+            callName = "getArchivedFormTaskBasicDQ",
+            retryIntervals = arrayOf(500L, 1000L, 300L),
+            legalExceptions = arrayOf(IOException::class, IDownloadQueueExternalBasicPurgeItemAltinnFaultFaultFaultMessage::class)
+        ) {
+            iDownloadQueueExternalBasic.purgeItem(navUsername, navPassword, it.archiveReference)
+        }
         log.info("Deleted ${it.archiveReference} from download queue")
     }
     private suspend fun toNlResponse(skjemaInnhold: XMLSkjemainnhold): NlResponse {
