@@ -7,27 +7,26 @@ version = "1.0.0"
 
 val coroutinesVersion = "1.6.4"
 val jacksonVersion = "2.13.4"
-val kluentVersion = "1.68"
-val ktorVersion = "2.1.1"
-val logbackVersion = "1.4.0"
+val kluentVersion = "1.72"
+val ktorVersion = "2.1.2"
+val logbackVersion = "1.4.4"
 val logstashEncoderVersion = "7.2"
 val prometheusVersion = "0.16.0"
-val kotestVersion = "5.4.2"
+val kotestVersion = "5.5.2"
 val smCommonVersion = "1.ea531b3"
-val mockkVersion = "1.12.8"
-val nimbusdsVersion = "9.24.4"
+val mockkVersion = "1.13.2"
 val altinnDownloadQueueVersion = "1.2020.10.21-14.38-e6bb56478815"
 val altinnPrefillVersion = "1.2020.10.21-14.38-e6bb56478815"
-val cxfVersion = "3.3.8"
+val cxfVersion = "3.5.3"
 val jaxwsToolsVersion = "2.3.1"
 val javaxActivationVersion = "1.2.0"
 val postgresVersion = "42.5.0"
-val flywayVersion = "9.3.0"
+val flywayVersion = "9.5.1"
 val hikariVersion = "5.0.1"
-val testContainerVersion = "1.17.3"
+val testContainerVersion = "1.17.4"
 val digisyfoNarmesteLederVersion = "1.2020.10.07-08.40-90b3ab7bad15"
 val commonsValidatorVersion = "1.7"
-val kotlinVersion = "1.7.10"
+val kotlinVersion = "1.7.20"
 val confluentVersion = "7.0.1"
 
 tasks.withType<Jar> {
@@ -36,10 +35,9 @@ tasks.withType<Jar> {
 
 plugins {
     id("org.jmailen.kotlinter") version "3.10.0"
-    kotlin("jvm") version "1.7.10"
+    kotlin("jvm") version "1.7.20"
     id("com.diffplug.spotless") version "6.5.0"
     id("com.github.johnrengelman.shadow") version "7.1.2"
-    jacoco
 }
 
 buildscript {
@@ -104,6 +102,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("no.nav.helse:syfosm-common-kafka:$smCommonVersion")
+    implementation("no.nav.helse:syfosm-common-networking:$smCommonVersion")
     implementation("commons-validator:commons-validator:$commonsValidatorVersion"){
         exclude(group = "commons-collections", module = "commons-collections")
     }
@@ -112,7 +111,6 @@ dependencies {
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
-    testImplementation("com.nimbusds:nimbus-jose-jwt:$nimbusdsVersion")
     testImplementation("org.testcontainers:kafka:$testContainerVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")
@@ -120,14 +118,6 @@ dependencies {
     testImplementation("org.testcontainers:postgresql:$testContainerVersion")
 
 }
-
-tasks.jacocoTestReport {
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-    }
-}
-
 
 tasks {
 
@@ -139,14 +129,6 @@ tasks {
         kotlinOptions.jvmTarget = "17"
     }
 
-    withType<JacocoReport> {
-        classDirectories.setFrom(
-                sourceSets.main.get().output.asFileTree.matching {
-                    exclude()
-                }
-        )
-
-    }
     withType<ShadowJar> {
         transform(ServiceFileTransformer::class.java) {
             setPath("META-INF/cxf")
