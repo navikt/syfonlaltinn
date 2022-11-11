@@ -48,7 +48,7 @@ class NarmesteLederRequestConsumerService(
         }
     }
 
-    private fun sendToAltinn(nlRequest: NlRequest, altinnStatus: AltinnStatus) {
+    private suspend fun sendToAltinn(nlRequest: NlRequest, altinnStatus: AltinnStatus) {
         try {
             log.info("Sender NL-forespørsel for requestId: ${nlRequest.requestId}, sykmeldingId: ${nlRequest.sykmeldingId}")
             val sendersReference = narmesteLederService.sendRequestToAltinn(nlRequest)

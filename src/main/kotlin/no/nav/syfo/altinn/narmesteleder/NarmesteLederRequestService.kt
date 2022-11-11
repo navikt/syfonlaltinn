@@ -9,8 +9,10 @@ import no.altinn.schemas.services.serviceengine.prefill._2009._10.PrefillFormBEL
 import no.altinn.schemas.services.serviceengine.prefill._2009._10.PrefillFormTask
 import no.altinn.services.serviceengine.prefill._2009._10.IPreFillExternalBasic
 import no.nav.syfo.altinn.orgnummer.AltinnOrgnummerLookup
+import no.nav.syfo.helpers.retry
 import no.nav.syfo.log
 import no.nav.syfo.nl.model.NlRequest
+import java.io.IOException
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.util.GregorianCalendar
@@ -19,6 +21,8 @@ import javax.xml.bind.JAXBElement
 import javax.xml.datatype.DatatypeFactory.newInstance
 import javax.xml.datatype.XMLGregorianCalendar
 import javax.xml.namespace.QName
+import javax.xml.ws.WebServiceException
+import javax.xml.ws.soap.SOAPFaultException
 
 class NarmesteLederRequestService(
     private val navUsername: String,
@@ -34,20 +38,31 @@ class NarmesteLederRequestService(
         private const val SYSTEM_USER_CODE = "NAV_DIGISYFO"
     }
 
-    fun sendRequestToAltinn(nlRequest: NlRequest): String {
+    suspend fun sendRequestToAltinn(nlRequest: NlRequest): String {
         val orgnummer = altinnOrgnummerLookup.getOrgnummer(nlRequest.orgnr)
         val oppdatertNlRequest = nlRequest.copy(orgnr = orgnummer)
         try {
-            val receipt = iPreFillExternalBasic.submitAndInstantiatePrefilledFormTaskBasic(
-                navUsername,
-                navPassword,
-                UUID.randomUUID().toString(),
-                getPrefillFormTask(oppdatertNlRequest),
-                false,
-                true,
-                null,
-                null
-            )
+            val receipt = retry(
+                callName = "IPreFillExternalBasic",
+                retryIntervals = arrayOf(500L, 1000L, 300L),
+                legalExceptions = arrayOf(
+                    IOException::class,
+                    WebServiceException::class,
+                    SOAPFaultException::class
+                )
+            ) {
+
+                iPreFillExternalBasic.submitAndInstantiatePrefilledFormTaskBasic(
+                    navUsername,
+                    navPassword,
+                    UUID.randomUUID().toString(),
+                    getPrefillFormTask(oppdatertNlRequest),
+                    false,
+                    true,
+                    null,
+                    null
+                )
+            }
             if (receipt.receiptStatusCode != ReceiptStatusEnum.OK) {
                 log.error("Could not sendt NlRequest to altinn for sykmelding :${nlRequest.sykmeldingId}")
                 throw RuntimeException("Could not send to altinn")
