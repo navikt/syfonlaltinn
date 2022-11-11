@@ -2,6 +2,8 @@ package no.nav.syfo.nl
 
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -51,12 +53,12 @@ class NarmesteLederRequestConsumerServiceTest : FunSpec({
 
     context("Test service") {
         test("should send to altinn") {
-            every { narmesteLederRequestService.sendRequestToAltinn(any()) } returns "senders_reference"
+            coEvery { narmesteLederRequestService.sendRequestToAltinn(any()) } returns "senders_reference"
 
             service.startConsumer()
 
             val cr = crs.first()
-            verify(exactly = 1) { narmesteLederRequestService.sendRequestToAltinn(cr.value().nlRequest) }
+            coVerify(exactly = 1) { narmesteLederRequestService.sendRequestToAltinn(cr.value().nlRequest) }
             verify(exactly = 1) {
                 database.insertAltinnStatus(
                     match {
@@ -75,14 +77,14 @@ class NarmesteLederRequestConsumerServiceTest : FunSpec({
         }
 
         test("Should update db with error when fails to send to altinn") {
-            every { narmesteLederRequestService.sendRequestToAltinn(any()) } throws RuntimeException("ERROR FROM ALTINN")
+            coEvery { narmesteLederRequestService.sendRequestToAltinn(any()) } throws RuntimeException("ERROR FROM ALTINN")
             assertFails {
                 runBlocking {
                     service.startConsumer()
                 }
             }
             val cr = crs.first()
-            verify(exactly = 1) { narmesteLederRequestService.sendRequestToAltinn(cr.value().nlRequest) }
+            coVerify(exactly = 1) { narmesteLederRequestService.sendRequestToAltinn(cr.value().nlRequest) }
             verify(exactly = 1) {
                 database.updateAltinnStatus(
                     match {
@@ -107,7 +109,7 @@ class NarmesteLederRequestConsumerServiceTest : FunSpec({
 
             verify(exactly = 0) { database.updateAltinnStatus(any()) }
             verify(exactly = 0) { database.insertAltinnStatus(any()) }
-            verify(exactly = 0) { narmesteLederRequestService.sendRequestToAltinn(any()) }
+            coVerify(exactly = 0) { narmesteLederRequestService.sendRequestToAltinn(any()) }
         }
 
         test("sender ikke skjema hvis tilsvarende ble sendt for under en uke siden") {
@@ -117,12 +119,12 @@ class NarmesteLederRequestConsumerServiceTest : FunSpec({
 
             verify(exactly = 0) { database.updateAltinnStatus(any()) }
             verify(exactly = 0) { database.insertAltinnStatus(any()) }
-            verify(exactly = 0) { narmesteLederRequestService.sendRequestToAltinn(any()) }
+            coVerify(exactly = 0) { narmesteLederRequestService.sendRequestToAltinn(any()) }
         }
 
         test("Should retry errors") {
             every { database.getAltinnStatus(any()) } returns createAltinnStatus(crs.first().value().nlRequest, OffsetDateTime.now(ZoneOffset.UTC)).copy(status = AltinnStatus.Status.ERROR)
-            every { narmesteLederRequestService.sendRequestToAltinn(any()) } returns "senders_reference"
+            coEvery { narmesteLederRequestService.sendRequestToAltinn(any()) } returns "senders_reference"
 
             service.startConsumer()
 
@@ -135,12 +137,12 @@ class NarmesteLederRequestConsumerServiceTest : FunSpec({
                 )
             }
             verify(exactly = 0) { database.insertAltinnStatus(any()) }
-            verify(exactly = 1) { narmesteLederRequestService.sendRequestToAltinn(any()) }
+            coVerify(exactly = 1) { narmesteLederRequestService.sendRequestToAltinn(any()) }
         }
 
         test("Should retry when status = NEW") {
             every { database.getAltinnStatus(any()) } returns createAltinnStatus(crs.first().value().nlRequest, OffsetDateTime.now(ZoneOffset.UTC)).copy(status = AltinnStatus.Status.NEW)
-            every { narmesteLederRequestService.sendRequestToAltinn(any()) } returns "senders_reference"
+            coEvery { narmesteLederRequestService.sendRequestToAltinn(any()) } returns "senders_reference"
 
             service.startConsumer()
 
@@ -153,7 +155,7 @@ class NarmesteLederRequestConsumerServiceTest : FunSpec({
                 )
             }
             verify(exactly = 0) { database.insertAltinnStatus(any()) }
-            verify(exactly = 1) { narmesteLederRequestService.sendRequestToAltinn(any()) }
+            coVerify(exactly = 1) { narmesteLederRequestService.sendRequestToAltinn(any()) }
         }
     }
 })
