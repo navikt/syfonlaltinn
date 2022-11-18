@@ -50,9 +50,17 @@ fun main() {
     val applicationServer = ApplicationServer(applicationEngine, applicationState)
 
     val database = Database(env)
+
+    val propertiesTimeout: MutableMap<String, Any> = HashMap()
+    // default er 30 sek (30000ms)
+    val timeoutMS = 60000
+    propertiesTimeout["javax.xml.ws.client.connectionTimeout"] = timeoutMS
+    propertiesTimeout["javax.xml.ws.client.receiveTimeout"] = timeoutMS
+
     val iDownloadQueueExternalBasic = JaxWsProxyFactoryBean().apply {
         address = env.altinnDownloadUrl
         serviceClass = IDownloadQueueExternalBasic::class.java
+        properties = propertiesTimeout
     }.create(IDownloadQueueExternalBasic::class.java)
 
     val kafkaProducer = KafkaProducer<String, NlResponseKafkaMessage>(
