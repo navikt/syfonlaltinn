@@ -8,6 +8,7 @@ import no.altinn.schemas.services.serviceengine.prefill._2009._10.PrefillForm
 import no.altinn.schemas.services.serviceengine.prefill._2009._10.PrefillFormBEList
 import no.altinn.schemas.services.serviceengine.prefill._2009._10.PrefillFormTask
 import no.altinn.services.serviceengine.prefill._2009._10.IPreFillExternalBasic
+import no.nav.syfo.altinn.narmesteleder.model.NotificationAltinnGenerator.Companion.createNotifications
 import no.nav.syfo.altinn.orgnummer.AltinnOrgnummerLookup
 import no.nav.syfo.helpers.retry
 import no.nav.syfo.log
@@ -101,6 +102,7 @@ class NarmesteLederRequestService(
             .withServiceOwnerCode(SYSTEM_USER_CODE)
             .withValidFromDate(createXMLDate(ZonedDateTime.now(ZoneOffset.UTC)))
             .withValidToDate(getDueDate())
+            .withPrefillNotifications(createNotifications())
     }
 
     private fun getDueDate(): XMLGregorianCalendar {
