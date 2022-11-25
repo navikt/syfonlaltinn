@@ -24,6 +24,7 @@ import javax.xml.namespace.QName
 import javax.xml.ws.WebServiceException
 import javax.xml.ws.soap.SOAPFaultException
 import no.nav.syfo.altinn.narmesteleder.model.NotificationAltinnGenerator.Companion.createNotifications
+import no.nav.syfo.securelog
 
 class NarmesteLederRequestService(
     private val navUsername: String,
@@ -64,6 +65,7 @@ class NarmesteLederRequestService(
                     null
                 )
             }
+            securelog.info("receipt: $receipt")
             if (receipt.receiptStatusCode != ReceiptStatusEnum.OK) {
                 log.error("Could not sendt NlRequest to altinn for sykmelding :${nlRequest.sykmeldingId}")
                 throw RuntimeException("Could not send to altinn")
@@ -80,7 +82,7 @@ class NarmesteLederRequestService(
     }
 
     private fun getPrefillFormTask(nlRequest: NlRequest): PrefillFormTask {
-        return PrefillFormTask()
+        val prefillFormTask = PrefillFormTask()
             .withExternalServiceCode(NARMESTE_LEDER_TJENESTEKODE)
             .withExternalServiceEditionCode(1)
             .withExternalShipmentReference(nlRequest.requestId.toString())
@@ -103,6 +105,10 @@ class NarmesteLederRequestService(
             .withValidFromDate(createXMLDate(ZonedDateTime.now(ZoneOffset.UTC)))
             .withValidToDate(getDueDate())
             .withPrefillNotifications(createNotifications())
+
+        securelog.info("PrefillFormTask: $prefillFormTask")
+
+        return prefillFormTask
     }
 
     private fun getDueDate(): XMLGregorianCalendar {
