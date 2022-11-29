@@ -53,6 +53,7 @@ class NarmesteLederRequestService(
 
     suspend fun sendRequestToAltinn(nlRequest: NlRequest): String {
         val orgnummer = altinnOrgnummerLookup.getOrgnummer(nlRequest.orgnr)
+        val notifications = altinnOrgnummerLookup.shouldSendNotification(nlRequest.orgnr)
         val oppdatertNlRequest = nlRequest.copy(orgnr = orgnummer)
         try {
             val receipt = retry(
@@ -69,7 +70,7 @@ class NarmesteLederRequestService(
                     navUsername,
                     navPassword,
                     UUID.randomUUID().toString(),
-                    getPrefillFormTask(oppdatertNlRequest),
+                    getPrefillFormTask(oppdatertNlRequest, notifications),
                     false,
                     true,
                     null,
@@ -92,7 +93,7 @@ class NarmesteLederRequestService(
         }
     }
 
-    private fun getPrefillFormTask(nlRequest: NlRequest): PrefillFormTask {
+    private fun getPrefillFormTask(nlRequest: NlRequest, notifications: Boolean): PrefillFormTask {
         val prefillFormTask = PrefillFormTask()
             .withExternalServiceCode(NARMESTE_LEDER_TJENESTEKODE)
             .withExternalServiceEditionCode(1)
@@ -115,7 +116,10 @@ class NarmesteLederRequestService(
             .withServiceOwnerCode(SYSTEM_USER_CODE)
             .withValidFromDate(createXMLDate(ZonedDateTime.now(ZoneOffset.UTC)))
             .withValidToDate(getDueDate())
-            .withPrefillNotifications(createNotifications())
+            if (notifications) {
+                prefillFormTask.withPrefillNotifications(createNotifications())
+            }
+
 
         securelog.info("PrefillFormTask: ${objectMapper.writeValueAsString(prefillFormTask)}")
         return prefillFormTask
