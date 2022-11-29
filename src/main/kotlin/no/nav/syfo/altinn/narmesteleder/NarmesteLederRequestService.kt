@@ -1,5 +1,10 @@
 package no.nav.syfo.altinn.narmesteleder
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import generated.XMLOppgiPersonallederM
 import generated.XMLSkjemainnhold
 import generated.XMLSykmeldt
@@ -38,6 +43,12 @@ class NarmesteLederRequestService(
         private const val DATA_FORMAT_ID = "5363"
         private const val DATA_FORMAT_PROVIDER = "SERES"
         private const val SYSTEM_USER_CODE = "NAV_DIGISYFO"
+        private val objectMapper: ObjectMapper = jacksonObjectMapper().apply {
+            registerModule(JavaTimeModule())
+            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+            configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
+        }
     }
 
     suspend fun sendRequestToAltinn(nlRequest: NlRequest): String {
@@ -65,7 +76,7 @@ class NarmesteLederRequestService(
                     null
                 )
             }
-            securelog.info("receipt: $receipt")
+            securelog.info("receipt: ${objectMapper.writeValueAsString(receipt)}")
             if (receipt.receiptStatusCode != ReceiptStatusEnum.OK) {
                 log.error("Could not sendt NlRequest to altinn for sykmelding :${nlRequest.sykmeldingId}")
                 throw RuntimeException("Could not send to altinn")
@@ -106,8 +117,7 @@ class NarmesteLederRequestService(
             .withValidToDate(getDueDate())
             .withPrefillNotifications(createNotifications())
 
-        securelog.info("PrefillFormTask: $prefillFormTask")
-
+        securelog.info("PrefillFormTask: ${objectMapper.writeValueAsString(prefillFormTask)}")
         return prefillFormTask
     }
 
