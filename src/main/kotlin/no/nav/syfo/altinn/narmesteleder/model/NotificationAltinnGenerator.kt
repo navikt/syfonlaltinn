@@ -2,7 +2,6 @@ package no.nav.syfo.altinn.narmesteleder.model
 
 import no.altinn.schemas.serviceengine.formsengine._2009._10.TransportType
 import no.altinn.schemas.serviceengine.formsengine._2009._10.TransportType.EMAIL
-import no.altinn.schemas.serviceengine.formsengine._2009._10.TransportType.SMS
 import no.altinn.schemas.services.serviceengine.notification._2009._10.Notification
 import no.altinn.schemas.services.serviceengine.notification._2009._10.NotificationBEList
 import no.altinn.schemas.services.serviceengine.notification._2009._10.ReceiverEndPoint
@@ -17,15 +16,11 @@ class NotificationAltinnGenerator private constructor() {
 
         fun createNotifications(): NotificationBEList {
             return NotificationBEList()
-                .withNotification(epostNotification(), smsNotification())
+                .withNotification(epostNotification())
         }
 
         fun createEmailNotification(vararg text: String): Notification {
             return createNotification(FRA_EPOST_ALTINN, EMAIL, convertToTextTokens(*text))
-        }
-
-        fun createSmsNotification(vararg text: String): Notification {
-            return createNotification(null, SMS, convertToTextTokens(*text))
         }
 
         private fun epostNotification(): Notification? {
@@ -34,13 +29,6 @@ class NotificationAltinnGenerator private constructor() {
                 "<p>En ansatt i \$reporteeName$ (\$reporteeNumber$) er sykmeldt og mangler nærmeste leder.</p>" +
                     "<p>Logg inn på Altinn for å melde inn hvem som er nærmeste leder</p>" +
                     "<p>Vennlig hilsen NAV.</p>"
-            )
-        }
-
-        private fun smsNotification(): Notification? {
-            return createSmsNotification(
-                "En ansatt i \$reporteeName$ (\$reporteeNumber$) er sykmeldt og mangler nærmeste leder.",
-                "Logg inn på Altinn for å melde inn hvem som er nærmeste leder. Vennlig hilsen NAV."
             )
         }
 

@@ -29,6 +29,7 @@ import javax.xml.datatype.XMLGregorianCalendar
 import javax.xml.namespace.QName
 import javax.xml.ws.WebServiceException
 import javax.xml.ws.soap.SOAPFaultException
+import no.nav.syfo.altinn.narmesteleder.model.NotificationAltinnGenerator.Companion.createNotifications
 
 class NarmesteLederRequestService(
     private val navUsername: String,
@@ -115,12 +116,10 @@ class NarmesteLederRequestService(
             .withServiceOwnerCode(SYSTEM_USER_CODE)
             .withValidFromDate(createXMLDate(ZonedDateTime.now(ZoneOffset.UTC)))
             .withValidToDate(getDueDate())
-        /*
             if (notifications) {
                 prefillFormTask.withPrefillNotifications(createNotifications())
             }
 
-         */
 
         securelog.info("PrefillFormTask: ${objectMapper.writeValueAsString(prefillFormTask)}")
         return prefillFormTask
