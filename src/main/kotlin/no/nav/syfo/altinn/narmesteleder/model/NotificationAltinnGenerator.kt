@@ -28,13 +28,12 @@ class NotificationAltinnGenerator private constructor() {
             return createNotification(null, SMS, convertToTextTokens(*text))
         }
 
-
         private fun epostNotification(): Notification? {
             return createEmailNotification(
                 "Meld inn nærmeste leder i Altinn",
                 "<p>En ansatt i \$reporteeName$ (\$reporteeNumber$) er sykmeldt og mangler nærmeste leder.</p>" +
-                        "<p>Logg inn på Altinn for å melde inn hvem som er nærmeste leder</p>" +
-                        "<p>Vennlig hilsen NAV.</p>"
+                    "<p>Logg inn på Altinn for å melde inn hvem som er nærmeste leder</p>" +
+                    "<p>Vennlig hilsen NAV.</p>"
             )
         }
 
