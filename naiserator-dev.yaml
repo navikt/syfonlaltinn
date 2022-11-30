@@ -56,6 +56,8 @@ spec:
       tenant: trygdeetaten.no
   envFrom:
     - secret: syfonlaltinn-secret
+  secureLogs:
+    enabled: true
   env:
     - name: ALTINN_DOWNLOAD_QUEUE_URL
       value: https://tt02.altinn.no/ArchiveExternal/DownloadQueueExternalBasic.svc

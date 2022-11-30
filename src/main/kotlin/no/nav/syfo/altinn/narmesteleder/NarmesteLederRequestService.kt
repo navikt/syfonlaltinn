@@ -1,5 +1,10 @@
 package no.nav.syfo.altinn.narmesteleder
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import generated.XMLOppgiPersonallederM
 import generated.XMLSkjemainnhold
 import generated.XMLSykmeldt
@@ -24,6 +29,7 @@ import javax.xml.namespace.QName
 import javax.xml.ws.WebServiceException
 import javax.xml.ws.soap.SOAPFaultException
 import no.nav.syfo.altinn.narmesteleder.model.NotificationAltinnGenerator.Companion.createNotifications
+import no.nav.syfo.securelog
 
 class NarmesteLederRequestService(
     private val navUsername: String,
@@ -37,10 +43,17 @@ class NarmesteLederRequestService(
         private const val DATA_FORMAT_ID = "5363"
         private const val DATA_FORMAT_PROVIDER = "SERES"
         private const val SYSTEM_USER_CODE = "NAV_DIGISYFO"
+        private val objectMapper: ObjectMapper = jacksonObjectMapper().apply {
+            registerModule(JavaTimeModule())
+            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+            configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true)
+        }
     }
 
     suspend fun sendRequestToAltinn(nlRequest: NlRequest): String {
         val orgnummer = altinnOrgnummerLookup.getOrgnummer(nlRequest.orgnr)
+        val notifications = altinnOrgnummerLookup.shouldSendNotification(nlRequest.orgnr)
         val oppdatertNlRequest = nlRequest.copy(orgnr = orgnummer)
         try {
             val receipt = retry(
@@ -57,13 +70,14 @@ class NarmesteLederRequestService(
                     navUsername,
                     navPassword,
                     UUID.randomUUID().toString(),
-                    getPrefillFormTask(oppdatertNlRequest),
+                    getPrefillFormTask(oppdatertNlRequest, notifications),
                     false,
                     true,
                     null,
                     null
                 )
             }
+            securelog.info("receipt: ${objectMapper.writeValueAsString(receipt)}")
             if (receipt.receiptStatusCode != ReceiptStatusEnum.OK) {
                 log.error("Could not sendt NlRequest to altinn for sykmelding :${nlRequest.sykmeldingId}")
                 throw RuntimeException("Could not send to altinn")
@@ -79,8 +93,8 @@ class NarmesteLederRequestService(
         }
     }
 
-    private fun getPrefillFormTask(nlRequest: NlRequest): PrefillFormTask {
-        return PrefillFormTask()
+    private fun getPrefillFormTask(nlRequest: NlRequest, notifications: Boolean): PrefillFormTask {
+        val prefillFormTask = PrefillFormTask()
             .withExternalServiceCode(NARMESTE_LEDER_TJENESTEKODE)
             .withExternalServiceEditionCode(1)
             .withExternalShipmentReference(nlRequest.requestId.toString())
@@ -102,7 +116,13 @@ class NarmesteLederRequestService(
             .withServiceOwnerCode(SYSTEM_USER_CODE)
             .withValidFromDate(createXMLDate(ZonedDateTime.now(ZoneOffset.UTC)))
             .withValidToDate(getDueDate())
-            .withPrefillNotifications(createNotifications())
+            if (notifications) {
+                prefillFormTask.withPrefillNotifications(createNotifications())
+            }
+
+
+        securelog.info("PrefillFormTask: ${objectMapper.writeValueAsString(prefillFormTask)}")
+        return prefillFormTask
     }
 
     private fun getDueDate(): XMLGregorianCalendar {

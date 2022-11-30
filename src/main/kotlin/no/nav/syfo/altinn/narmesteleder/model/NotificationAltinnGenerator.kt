@@ -29,7 +29,7 @@ class NotificationAltinnGenerator private constructor() {
         }
 
 
-        private fun epostNotification(): Notification {
+        private fun epostNotification(): Notification? {
             return createEmailNotification(
                 "Meld inn nærmeste leder i Altinn",
                 "<p>En ansatt i \$reporteeName$ (\$reporteeNumber$) er sykmeldt og mangler nærmeste leder.</p>" +
@@ -38,7 +38,7 @@ class NotificationAltinnGenerator private constructor() {
             )
         }
 
-        private fun smsNotification(): Notification {
+        private fun smsNotification(): Notification? {
             return createSmsNotification(
                 "En ansatt i \$reporteeName$ (\$reporteeNumber$) er sykmeldt og mangler nærmeste leder.",
                 "Logg inn på Altinn for å melde inn hvem som er nærmeste leder. Vennlig hilsen NAV."
@@ -57,7 +57,9 @@ class NotificationAltinnGenerator private constructor() {
                     "TokenTextOnly"
                 )
                 .withFromAddress(
-                    fromEmail
+                    fromEmail?.let {
+                        it
+                    }
                 )
                 .withReceiverEndPoints(
                     ReceiverEndPointBEList()
