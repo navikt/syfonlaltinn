@@ -10,8 +10,4 @@ class AltinnTestOrgnummerLookup : AltinnOrgnummerLookup {
             else -> overrideOrgnummer
         }
     }
-
-    override fun shouldSendNotification(orgnummer: String): Boolean {
-        return altinnWhitelistOrgnummer.contains(orgnummer)
-    }
 }

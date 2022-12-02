@@ -29,7 +29,6 @@ import javax.xml.datatype.XMLGregorianCalendar
 import javax.xml.namespace.QName
 import javax.xml.ws.WebServiceException
 import javax.xml.ws.soap.SOAPFaultException
-import no.nav.syfo.altinn.narmesteleder.model.NotificationAltinnGenerator.Companion.createNotifications
 
 class NarmesteLederRequestService(
     private val navUsername: String,
@@ -53,7 +52,6 @@ class NarmesteLederRequestService(
 
     suspend fun sendRequestToAltinn(nlRequest: NlRequest): String {
         val orgnummer = altinnOrgnummerLookup.getOrgnummer(nlRequest.orgnr)
-        val notifications = altinnOrgnummerLookup.shouldSendNotification(nlRequest.orgnr)
         val oppdatertNlRequest = nlRequest.copy(orgnr = orgnummer)
         try {
             val receipt = retry(
@@ -70,7 +68,7 @@ class NarmesteLederRequestService(
                     navUsername,
                     navPassword,
                     UUID.randomUUID().toString(),
-                    getPrefillFormTask(oppdatertNlRequest, notifications),
+                    getPrefillFormTask(oppdatertNlRequest),
                     false,
                     true,
                     null,
@@ -93,7 +91,7 @@ class NarmesteLederRequestService(
         }
     }
 
-    private fun getPrefillFormTask(nlRequest: NlRequest, notifications: Boolean): PrefillFormTask {
+    private fun getPrefillFormTask(nlRequest: NlRequest): PrefillFormTask {
         val prefillFormTask = PrefillFormTask()
             .withExternalServiceCode(NARMESTE_LEDER_TJENESTEKODE)
             .withExternalServiceEditionCode(1)
@@ -116,10 +114,6 @@ class NarmesteLederRequestService(
             .withServiceOwnerCode(SYSTEM_USER_CODE)
             .withValidFromDate(createXMLDate(ZonedDateTime.now(ZoneOffset.UTC)))
             .withValidToDate(getDueDate())
-            if (notifications) {
-                prefillFormTask.withPrefillNotifications(createNotifications())
-            }
-
 
         securelog.info("PrefillFormTask: ${objectMapper.writeValueAsString(prefillFormTask)}")
         return prefillFormTask

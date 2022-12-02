@@ -22,14 +22,5 @@ class AltinnOrgnummerResolverTest : FunSpec({
             "2" shouldBeEqualTo AltinnOrgnummerLookupFactory.getOrgnummerResolver("prod-gcp").getOrgnummer("2")
             "3" shouldBeEqualTo AltinnOrgnummerLookupFactory.getOrgnummerResolver("prod-gcp").getOrgnummer("3")
         }
-        test("Should not send notification if not whitelisted in dev") {
-            false shouldBeEqualTo AltinnOrgnummerLookupFactory.getOrgnummerResolver("dev-gcp").shouldSendNotification("other")
-        }
-        test("Should send notification if whitelisted in dev") {
-            true shouldBeEqualTo AltinnOrgnummerLookupFactory.getOrgnummerResolver("dev-gcp").shouldSendNotification("811290572")
-        }
-        test("Should send notificatin in prod") {
-            true shouldBeEqualTo AltinnOrgnummerLookupFactory.getOrgnummerResolver("prod-gcp").shouldSendNotification("any")
-        }
     }
 })
