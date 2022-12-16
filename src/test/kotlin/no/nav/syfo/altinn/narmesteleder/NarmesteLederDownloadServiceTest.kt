@@ -124,7 +124,8 @@ private fun setupTest(
 
 private fun generateFormData(lederFnr: String, email: String): String {
     val xmlOppgiPersonalLeder = JAXBElement(
-        QName("melding"), XMLOppgiPersonallederM::class.java,
+        QName("melding"),
+        XMLOppgiPersonallederM::class.java,
         XMLOppgiPersonallederM()
             .withDataFormatId("5363")
             .withDataFormatProvider("SERES")

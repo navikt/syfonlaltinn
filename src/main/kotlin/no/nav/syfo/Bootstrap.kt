@@ -85,9 +85,14 @@ fun main() {
     )
     val httpclient = HttpClientFactory.getHttpClient()
     val pdlClient = PdlClient(
-        HttpClientFactory.getHttpClient(), env.pdlGraphqlPath, env.pdlScope,
+        HttpClientFactory.getHttpClient(),
+        env.pdlGraphqlPath,
+        env.pdlScope,
         AccessTokenClient(
-            env.aadAccessTokenUrl, env.clientId, env.clientSecret, httpclient
+            env.aadAccessTokenUrl,
+            env.clientId,
+            env.clientSecret,
+            httpclient
         )
     )
 

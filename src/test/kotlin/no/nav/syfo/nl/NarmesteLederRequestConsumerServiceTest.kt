@@ -173,7 +173,6 @@ fun createAltinnStatus(nlRequest: NlRequest, timestamp: OffsetDateTime): AltinnS
 }
 
 fun createConsumerRecord(): ConsumerRecords<String, NlRequestKafkaMessage> {
-
     return ConsumerRecords(
         mapOf(TopicPartition("topic", 1) to listOf<ConsumerRecord<String, NlRequestKafkaMessage>>(ConsumerRecord("topic", 1, 0, "key", getNlRequestMessage())))
     )

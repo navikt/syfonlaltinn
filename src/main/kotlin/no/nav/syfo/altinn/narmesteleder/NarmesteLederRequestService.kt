@@ -63,7 +63,6 @@ class NarmesteLederRequestService(
                     SOAPFaultException::class
                 )
             ) {
-
                 iPreFillExternalBasic.submitAndInstantiatePrefilledFormTaskBasic(
                     navUsername,
                     navPassword,
@@ -129,7 +128,8 @@ class NarmesteLederRequestService(
 
     private fun generateFormData(nlRequest: NlRequest): String {
         val xmlOppgiPersonalLeder = JAXBElement(
-            QName("melding"), XMLOppgiPersonallederM::class.java,
+            QName("melding"),
+            XMLOppgiPersonallederM::class.java,
             XMLOppgiPersonallederM()
                 .withDataFormatId(DATA_FORMAT_ID)
                 .withDataFormatProvider(DATA_FORMAT_PROVIDER)
