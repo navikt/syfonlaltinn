@@ -122,7 +122,7 @@ class NarmesteLederRequestService(
         return createXMLDate(ZonedDateTime.now(ZoneOffset.UTC).plusDays(7))
     }
 
-    fun createXMLDate(date: ZonedDateTime): XMLGregorianCalendar {
+    private fun createXMLDate(date: ZonedDateTime): XMLGregorianCalendar {
         return newInstance().newXMLGregorianCalendar(GregorianCalendar.from(date))
     }
 
