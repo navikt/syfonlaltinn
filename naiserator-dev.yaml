@@ -47,8 +47,6 @@ spec:
     pool: nav-dev
   vault:
     enabled: false
-  ingresses:
-    - "https://syfonlaltinn.dev.intern.nav.no"
   webproxy: true
   azure:
     application:
