@@ -26,7 +26,7 @@ val hikariVersion = "5.0.1"
 val testContainerVersion = "1.17.6"
 val digisyfoNarmesteLederVersion = "1.2020.10.07-08.40-90b3ab7bad15"
 val commonsValidatorVersion = "1.7"
-val kotlinVersion = "1.8.10"
+val kotlinVersion = "1.8.20"
 val confluentVersion = "7.0.1"
 
 tasks.withType<Jar> {
