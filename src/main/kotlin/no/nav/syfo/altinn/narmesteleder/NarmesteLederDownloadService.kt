@@ -59,7 +59,7 @@ class NarmesteLederDownloadService(
                 iDownloadQueueExternalBasic.getDownloadQueueItems(navUsername, navPassword, SERVICE_CODE)
             }
             if (items.downloadQueueItemBE.size > 0) {
-                log.info("Got itmes from download queue from altinn ${items.downloadQueueItemBE.size}")
+                log.info("Got items from download queue from altinn ${items.downloadQueueItemBE.size}")
             }
             items.downloadQueueItemBE.forEach { handleDownloadItem(it) }
         } catch (ex: IDownloadQueueExternalBasicGetDownloadQueueItemsAltinnFaultFaultFaultMessage) {

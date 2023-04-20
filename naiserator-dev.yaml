@@ -11,6 +11,7 @@ spec:
     outbound:
       external:
         - host: tt02.altinn.no
+        - host: pdl-api.dev-fss-pub.nais.io
   replicas:
     min: 1
     max: 1
