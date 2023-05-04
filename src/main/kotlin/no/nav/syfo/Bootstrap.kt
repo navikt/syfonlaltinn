@@ -46,7 +46,7 @@ fun main() {
     val applicationState = ApplicationState()
     val applicationEngine = createApplicationEngine(
         env,
-        applicationState
+        applicationState,
     )
     val applicationServer = ApplicationServer(applicationEngine, applicationState)
 
@@ -67,13 +67,13 @@ fun main() {
     val kafkaProducer = KafkaProducer<String, NlResponseKafkaMessage>(
         KafkaUtils
             .getAivenKafkaConfig()
-            .toProducerConfig("syfonlaltinn-producer", JacksonKafkaSerializer::class, StringSerializer::class)
+            .toProducerConfig("syfonlaltinn-producer", JacksonKafkaSerializer::class, StringSerializer::class),
     )
 
     val invalidKafkaProducer = KafkaProducer<String, Any>(
         KafkaUtils
             .getAivenKafkaConfig()
-            .toProducerConfig("syfonlaltinn-producer", JacksonKafkaSerializer::class, StringSerializer::class)
+            .toProducerConfig("syfonlaltinn-producer", JacksonKafkaSerializer::class, StringSerializer::class),
     )
 
     val kafkaConsumer = KafkaConsumer(
@@ -81,7 +81,7 @@ fun main() {
             it[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "none"
         },
         StringDeserializer(),
-        JacksonKafkaDeserializer(NlRequestKafkaMessage::class)
+        JacksonKafkaDeserializer(NlRequestKafkaMessage::class),
     )
     val httpclient = HttpClientFactory.getHttpClient()
     val pdlClient = PdlClient(
@@ -92,8 +92,8 @@ fun main() {
             env.aadAccessTokenUrl,
             env.clientId,
             env.clientSecret,
-            httpclient
-        )
+            httpclient,
+        ),
     )
 
     val iPreFillExternalBasic = JaxWsProxyFactoryBean().apply {
@@ -107,14 +107,14 @@ fun main() {
         env.navUsername,
         env.navPassword,
         iPreFillExternalBasic,
-        altinnOrgnummerLookup
+        altinnOrgnummerLookup,
     )
     val narmesteLederRequestConsumerService = NarmesteLederRequestConsumerService(
         kafkaConsumer,
         applicationState,
         env.nlRequestTopic,
         narmesteLederRequestService,
-        database
+        database,
     )
 
     val nlResponseKafkaProducer = NlResponseProducer(kafkaProducer, env.nlResponseTopic)
@@ -127,7 +127,7 @@ fun main() {
         nlResponseKafkaProducer,
         nlInvalidProducer,
         pdlClient,
-        env.cluster
+        env.cluster,
     )
 
     startBackgroundJob(applicationState) {

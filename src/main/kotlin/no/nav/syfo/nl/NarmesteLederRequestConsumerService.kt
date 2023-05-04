@@ -23,7 +23,7 @@ class NarmesteLederRequestConsumerService(
     private val applicationState: ApplicationState,
     private val topic: String,
     private val narmesteLederService: NarmesteLederRequestService,
-    private val database: DatabaseInterface
+    private val database: DatabaseInterface,
 ) {
 
     suspend fun startConsumer() {
@@ -76,7 +76,7 @@ class NarmesteLederRequestConsumerService(
             fnr = nlRequest.fnr,
             OffsetDateTime.now(ZoneOffset.UTC),
             AltinnStatus.Status.NEW,
-            sendersReference = null
+            sendersReference = null,
         )
         database.insertAltinnStatus(altinnStatus)
         return altinnStatus
@@ -85,7 +85,7 @@ class NarmesteLederRequestConsumerService(
     private fun erSendtSisteUke(
         orgnummer: String,
         fnr: String,
-        enUkeSiden: OffsetDateTime = OffsetDateTime.now(ZoneOffset.UTC).minusWeeks(1)
+        enUkeSiden: OffsetDateTime = OffsetDateTime.now(ZoneOffset.UTC).minusWeeks(1),
     ): Boolean {
         return database.erSendtSisteUke(orgnummer = orgnummer, fnr = fnr, enUkeSiden = enUkeSiden)
     }

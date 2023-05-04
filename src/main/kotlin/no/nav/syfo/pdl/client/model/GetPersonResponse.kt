@@ -3,7 +3,7 @@ package no.nav.syfo.pdl.client.model
 import java.lang.RuntimeException
 
 data class GetPersonResponse(
-    val data: ResponseData
+    val data: ResponseData,
 )
 
 fun GetPersonResponse.toFnr(): String {
@@ -12,13 +12,13 @@ fun GetPersonResponse.toFnr(): String {
 }
 
 data class ResponseData(
-    val identer: IdentResponse?
+    val identer: IdentResponse?,
 )
 
 data class IdentResponse(
-    val identer: List<Ident>
+    val identer: List<Ident>,
 )
 
 data class Ident(
-    val ident: String
+    val ident: String,
 )

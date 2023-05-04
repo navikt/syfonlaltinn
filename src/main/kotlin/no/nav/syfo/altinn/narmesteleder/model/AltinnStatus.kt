@@ -10,11 +10,11 @@ data class AltinnStatus(
     val fnr: String,
     val timestamp: OffsetDateTime,
     val status: Status,
-    val sendersReference: String?
+    val sendersReference: String?,
 ) {
     enum class Status {
         SENDT,
         NEW,
-        ERROR
+        ERROR,
     }
 }

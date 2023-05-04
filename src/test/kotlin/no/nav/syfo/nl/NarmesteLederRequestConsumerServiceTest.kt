@@ -63,7 +63,7 @@ class NarmesteLederRequestConsumerServiceTest : FunSpec({
                 database.insertAltinnStatus(
                     match {
                         createAltinnStatus(cr.value().nlRequest, it.timestamp) == it
-                    }
+                    },
                 )
             }
             verify(exactly = 1) {
@@ -71,7 +71,7 @@ class NarmesteLederRequestConsumerServiceTest : FunSpec({
                     match {
                         it.status == AltinnStatus.Status.SENDT &&
                             it.sendersReference == "senders_reference"
-                    }
+                    },
                 )
             }
         }
@@ -90,14 +90,14 @@ class NarmesteLederRequestConsumerServiceTest : FunSpec({
                     match {
                         it.status == AltinnStatus.Status.ERROR &&
                             it.sendersReference == null
-                    }
+                    },
                 )
             }
             verify(exactly = 1) {
                 database.insertAltinnStatus(
                     match {
                         createAltinnStatus(cr.value().nlRequest, it.timestamp) == it
-                    }
+                    },
                 )
             }
         }
@@ -133,7 +133,7 @@ class NarmesteLederRequestConsumerServiceTest : FunSpec({
                     match {
                         it.status == AltinnStatus.Status.SENDT &&
                             it.sendersReference == "senders_reference"
-                    }
+                    },
                 )
             }
             verify(exactly = 0) { database.insertAltinnStatus(any()) }
@@ -151,7 +151,7 @@ class NarmesteLederRequestConsumerServiceTest : FunSpec({
                     match {
                         it.status == AltinnStatus.Status.SENDT &&
                             it.sendersReference == "senders_reference"
-                    }
+                    },
                 )
             }
             verify(exactly = 0) { database.insertAltinnStatus(any()) }
@@ -168,13 +168,13 @@ fun createAltinnStatus(nlRequest: NlRequest, timestamp: OffsetDateTime): AltinnS
         fnr = nlRequest.fnr,
         timestamp = timestamp,
         status = AltinnStatus.Status.NEW,
-        sendersReference = null
+        sendersReference = null,
     )
 }
 
 fun createConsumerRecord(): ConsumerRecords<String, NlRequestKafkaMessage> {
     return ConsumerRecords(
-        mapOf(TopicPartition("topic", 1) to listOf<ConsumerRecord<String, NlRequestKafkaMessage>>(ConsumerRecord("topic", 1, 0, "key", getNlRequestMessage())))
+        mapOf(TopicPartition("topic", 1) to listOf<ConsumerRecord<String, NlRequestKafkaMessage>>(ConsumerRecord("topic", 1, 0, "key", getNlRequestMessage()))),
     )
 }
 
@@ -186,7 +186,7 @@ fun getNlRequestMessage(): NlRequestKafkaMessage {
             sykmeldingId = UUID.randomUUID().toString(),
             fnr = "12345678912",
             orgnr = "123456789",
-            name = "Syk syk"
-        )
+            name = "Syk syk",
+        ),
     )
 }

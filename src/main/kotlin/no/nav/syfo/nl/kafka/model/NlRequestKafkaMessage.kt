@@ -4,5 +4,5 @@ import no.nav.syfo.nl.model.NlRequest
 
 data class NlRequestKafkaMessage(
     val nlRequest: NlRequest,
-    val metadata: KafkaMetadata
+    val metadata: KafkaMetadata,
 )
