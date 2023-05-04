@@ -12,7 +12,7 @@ class NlResponseProducer(val kafkaProducer: KafkaProducer<String, NlResponseKafk
     fun sendNlResponse(nlResponse: NlResponse) {
         val kafkaMessage = NlResponseKafkaMessage(
             kafkaMetadata = KafkaMetadata(OffsetDateTime.now(ZoneOffset.UTC), "syfonlaltinn"),
-            nlResponse = nlResponse
+            nlResponse = nlResponse,
         )
         kafkaProducer.send(ProducerRecord(topic, nlResponse.orgnummer, kafkaMessage)).get()
     }

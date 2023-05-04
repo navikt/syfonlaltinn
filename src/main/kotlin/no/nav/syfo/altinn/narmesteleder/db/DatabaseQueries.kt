@@ -13,7 +13,7 @@ fun DatabaseInterface.getAltinnStatus(id: UUID): AltinnStatus? {
         connection.prepareStatement(
             """
             SELECT * FROM status WHERE id = ?
-            """
+            """,
         ).use {
             it.setObject(1, id)
             it.executeQuery().toAltinnStatus()
@@ -27,7 +27,7 @@ fun DatabaseInterface.insertAltinnStatus(altinnStatus: AltinnStatus) {
             """
             INSERT INTO status(id, sykmelding_id, org_nr, fnr, timestamp, status, senders_reference)
              VALUES (?, ?, ?, ?, ?, ?, ?)
-            """
+            """,
         ).use { ps ->
             var i = 1
             ps.setObject(i++, altinnStatus.id)
@@ -51,7 +51,7 @@ fun DatabaseInterface.updateAltinnStatus(altinnStatus: AltinnStatus) {
            SET status = ?,
            senders_reference = ?
            WHERE id = ?
-            """
+            """,
         ).use { ps ->
             ps.setString(1, altinnStatus.status.name)
             ps.setString(2, altinnStatus.sendersReference)
@@ -67,7 +67,7 @@ fun DatabaseInterface.erSendtSisteUke(orgnummer: String, fnr: String, enUkeSiden
         connection.prepareStatement(
             """
             SELECT * FROM status WHERE org_nr = ? AND fnr = ? AND status = 'SENDT' AND timestamp > ?
-            """
+            """,
         ).use { ps ->
             ps.setString(1, orgnummer)
             ps.setString(2, fnr)
@@ -85,7 +85,7 @@ private fun ResultSet.toAltinnStatus(): AltinnStatus? {
             fnr = getString("fnr"),
             timestamp = getTimestamp("timestamp").toInstant().atOffset(ZoneOffset.UTC),
             status = AltinnStatus.Status.valueOf(getString("status")),
-            sendersReference = getString("senders_reference")
+            sendersReference = getString("senders_reference"),
         )
         false -> null
     }

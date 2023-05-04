@@ -11,7 +11,7 @@ import javax.xml.transform.stream.StreamResult
 class JAXBUtil {
     companion object {
         val JAXBContext = newInstance(
-            XMLOppgiPersonallederM::class.java
+            XMLOppgiPersonallederM::class.java,
         )
 
         fun marshall(element: JAXBElement<XMLOppgiPersonallederM>): String {

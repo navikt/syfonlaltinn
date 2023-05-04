@@ -33,7 +33,7 @@ class NarmesteLederDownloadService(
     private val nlResponseProducer: NlResponseProducer,
     private val nlInvalidProducer: NlInvalidProducer,
     private val pdlClient: PdlClient,
-    private val cluster: String
+    private val cluster: String,
 ) {
 
     companion object {
@@ -54,7 +54,7 @@ class NarmesteLederDownloadService(
             val items = retry(
                 callName = "getDownloadQueueItems",
                 retryIntervals = arrayOf(500L, 1000L, 300L),
-                legalExceptions = arrayOf(IOException::class, IDownloadQueueExternalBasicGetDownloadQueueItemsAltinnFaultFaultFaultMessage::class)
+                legalExceptions = arrayOf(IOException::class, IDownloadQueueExternalBasicGetDownloadQueueItemsAltinnFaultFaultFaultMessage::class),
             ) {
                 iDownloadQueueExternalBasic.getDownloadQueueItems(navUsername, navPassword, SERVICE_CODE)
             }
@@ -77,7 +77,7 @@ class NarmesteLederDownloadService(
         val item = retry(
             callName = "getArchivedFormTaskBasicDQ",
             retryIntervals = arrayOf(500L, 1000L, 300L),
-            legalExceptions = arrayOf(IOException::class, IDownloadQueueExternalBasicGetArchivedFormTaskBasicDQAltinnFaultFaultFaultMessage::class)
+            legalExceptions = arrayOf(IOException::class, IDownloadQueueExternalBasicGetArchivedFormTaskBasicDQAltinnFaultFaultFaultMessage::class),
         ) {
             iDownloadQueueExternalBasic.getArchivedFormTaskBasicDQ(navUsername, navPassword, it.archiveReference, LANGUAGE_ID, true)
         }
@@ -103,7 +103,7 @@ class NarmesteLederDownloadService(
         retry(
             callName = "getArchivedFormTaskBasicDQ",
             retryIntervals = arrayOf(500L, 1000L, 300L),
-            legalExceptions = arrayOf(IOException::class, IDownloadQueueExternalBasicPurgeItemAltinnFaultFaultFaultMessage::class)
+            legalExceptions = arrayOf(IOException::class, IDownloadQueueExternalBasicPurgeItemAltinnFaultFaultFaultMessage::class),
         ) {
             iDownloadQueueExternalBasic.purgeItem(navUsername, navPassword, it.archiveReference)
         }
@@ -133,12 +133,12 @@ class NarmesteLederDownloadService(
                 mobil = nlMobil,
                 epost = nlEpost,
                 fornavn = nlFornavn,
-                etternavn = nlEtternavn
+                etternavn = nlEtternavn,
             ),
             sykmeldt = Sykmeldt(
                 fnr = sykmeldtPdlFnr,
-                navn = sykmeldtNavn
-            )
+                navn = sykmeldtNavn,
+            ),
         )
     }
 

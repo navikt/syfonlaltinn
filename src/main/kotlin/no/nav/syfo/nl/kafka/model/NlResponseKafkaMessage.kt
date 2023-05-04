@@ -4,5 +4,5 @@ import no.nav.syfo.nl.model.NlResponse
 
 data class NlResponseKafkaMessage(
     val kafkaMetadata: KafkaMetadata,
-    val nlResponse: NlResponse
+    val nlResponse: NlResponse,
 )

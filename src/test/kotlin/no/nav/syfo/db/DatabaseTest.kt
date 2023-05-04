@@ -112,5 +112,5 @@ private fun getAltinnStatus() = AltinnStatus(
     fnr = "fnr",
     timestamp = getTickMillis(),
     status = AltinnStatus.Status.NEW,
-    sendersReference = null
+    sendersReference = null,
 )

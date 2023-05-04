@@ -41,7 +41,7 @@ class NarmesteLederDownloadServiceTest : FunSpec({
         nlResponseProducer,
         nlInvalidProducer,
         pdlClient,
-        "prod-gcp"
+        "prod-gcp",
     )
     mockkStatic("kotlinx.coroutines.DelayKt")
 
@@ -92,16 +92,16 @@ private fun setupTest(
     nlResponseProducer: NlResponseProducer,
     nlInvalidProducer: NlInvalidProducer,
     lederFnr: String = "14077700162",
-    email: String = "epost@epost.com"
+    email: String = "epost@epost.com",
 ) {
     every {
         iDownload.getDownloadQueueItems(
             "NAV",
             "PASSWORD",
-            "4596"
+            "4596",
         )
     } returns DownloadQueueItemBEList().withDownloadQueueItemBE(
-        DownloadQueueItemBE().withArchiveReference("1")
+        DownloadQueueItemBE().withArchiveReference("1"),
     )
     every {
         iDownload.getArchivedFormTaskBasicDQ(
@@ -109,12 +109,12 @@ private fun setupTest(
             "PASSWORD",
             "1",
             1033,
-            true
+            true,
         )
     } returns ArchivedFormTaskDQBE().withForms(
         ArchivedFormListDQBE().withArchivedFormDQBE(
-            ArchivedFormDQBE().withFormData(generateFormData(lederFnr, email))
-        )
+            ArchivedFormDQBE().withFormData(generateFormData(lederFnr, email)),
+        ),
     ).withArchiveReference("1")
     every { applicationState.ready } returns true andThen false
     every { iDownload.purgeItem("NAV", "PASSWORD", "1") } returns "1"
@@ -138,8 +138,8 @@ private fun generateFormData(lederFnr: String, email: String): String {
                             XMLSykmeldt::class.java,
                             XMLSykmeldt()
                                 .withSykmeldtFoedselsnummer("123456789")
-                                .withSykmeldtNavn("Navn Navn")
-                        )
+                                .withSykmeldtNavn("Navn Navn"),
+                        ),
                     )
                     .withNaermesteLeder(
                         JAXBElement(
@@ -150,41 +150,41 @@ private fun generateFormData(lederFnr: String, email: String): String {
                                     JAXBElement(
                                         QName("naermesteLederEpost"),
                                         String::class.java,
-                                        email
-                                    )
+                                        email,
+                                    ),
                                 )
                                 .withNaermesteLederEtternavn(
                                     JAXBElement(
                                         QName("naermesteLederEtternavn"),
                                         String::class.java,
-                                        "N"
-                                    )
+                                        "N",
+                                    ),
                                 )
                                 .withNaermesteLederFornavn(
                                     JAXBElement(
                                         QName("naermesteLederFornavn"),
                                         String::class.java,
-                                        "N"
-                                    )
+                                        "N",
+                                    ),
                                 )
                                 .withNaermesteLederMobilnummer(
                                     JAXBElement(
                                         QName("naermesteLederMobilnummer"),
                                         String::class.java,
-                                        "12345678"
-                                    )
+                                        "12345678",
+                                    ),
                                 )
                                 .withNaermesteLederFoedselsnummer(
                                     JAXBElement(
                                         QName("naermesteLederFoedselsnummer"),
                                         String::class.java,
-                                        lederFnr
-                                    )
-                                )
-                        )
+                                        lederFnr,
+                                    ),
+                                ),
+                        ),
                     ).withUtbetalesLonn(JAXBElement(QName("utbetalesLonn"), Boolean::class.java, true))
-                    .withOrganisasjonsnummer("123456789")
-            )
+                    .withOrganisasjonsnummer("123456789"),
+            ),
     )
     return JAXBUtil.marshall(xmlOppgiPersonalLeder)
 }

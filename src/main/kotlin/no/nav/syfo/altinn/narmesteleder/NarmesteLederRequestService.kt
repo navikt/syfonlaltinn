@@ -34,7 +34,7 @@ class NarmesteLederRequestService(
     private val navUsername: String,
     private val navPassword: String,
     private val iPreFillExternalBasic: IPreFillExternalBasic,
-    private val altinnOrgnummerLookup: AltinnOrgnummerLookup
+    private val altinnOrgnummerLookup: AltinnOrgnummerLookup,
 ) {
     companion object {
         private const val NARMESTE_LEDER_TJENESTEKODE = "4596"
@@ -60,8 +60,8 @@ class NarmesteLederRequestService(
                 legalExceptions = arrayOf(
                     IOException::class,
                     WebServiceException::class,
-                    SOAPFaultException::class
-                )
+                    SOAPFaultException::class,
+                ),
             ) {
                 iPreFillExternalBasic.submitAndInstantiatePrefilledFormTaskBasic(
                     navUsername,
@@ -71,7 +71,7 @@ class NarmesteLederRequestService(
                     false,
                     true,
                     null,
-                    null
+                    null,
                 )
             }
             securelog.info("receipt: ${objectMapper.writeValueAsString(receipt)}")
@@ -104,8 +104,8 @@ class NarmesteLederRequestService(
                             .withFormDataXML(generateFormData(nlRequest))
                             .withSendersReference(UUID.randomUUID().toString())
                             .withSignedByDefault(false)
-                            .withSigningLocked(false)
-                    )
+                            .withSigningLocked(false),
+                    ),
             )
             .withReceiversReference(UUID.randomUUID().toString())
             .withReportee(nlRequest.orgnr)
@@ -142,11 +142,11 @@ class NarmesteLederRequestService(
                                 XMLSykmeldt::class.java,
                                 XMLSykmeldt()
                                     .withSykmeldtFoedselsnummer(nlRequest.fnr)
-                                    .withSykmeldtNavn(nlRequest.name)
-                            )
+                                    .withSykmeldtNavn(nlRequest.name),
+                            ),
                         )
-                        .withOrganisasjonsnummer(nlRequest.orgnr)
-                )
+                        .withOrganisasjonsnummer(nlRequest.orgnr),
+                ),
         )
         return JAXBUtil.marshall(xmlOppgiPersonalLeder)
     }

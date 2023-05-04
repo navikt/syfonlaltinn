@@ -19,7 +19,7 @@ class PdlClient(
     private val basePath: String,
     private val pdlScope: String,
     private val accessTokenClient: AccessTokenClient,
-    private val graphQlQuery: String = PdlClient::class.java.getResource("/graphql/getPerson.graphql").readText().replace(Regex("[\n\t]"), "")
+    private val graphQlQuery: String = PdlClient::class.java.getResource("/graphql/getPerson.graphql").readText().replace(Regex("[\n\t]"), ""),
 ) {
     private val temaHeader = "TEMA"
     private val tema = "SYM"

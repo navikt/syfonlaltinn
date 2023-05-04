@@ -46,9 +46,6 @@ spec:
           - name: syfonlaltinn
   kafka:
     pool: nav-dev
-  vault:
-    enabled: false
-  webproxy: true
   azure:
     application:
       enabled: true
