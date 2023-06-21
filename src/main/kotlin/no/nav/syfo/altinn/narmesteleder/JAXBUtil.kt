@@ -10,9 +10,10 @@ import javax.xml.transform.stream.StreamResult
 
 class JAXBUtil {
     companion object {
-        val JAXBContext = newInstance(
-            XMLOppgiPersonallederM::class.java,
-        )
+        val JAXBContext =
+            newInstance(
+                XMLOppgiPersonallederM::class.java,
+            )
 
         fun marshall(element: JAXBElement<XMLOppgiPersonallederM>): String {
             val stringWriter = StringWriter()
@@ -26,7 +27,9 @@ class JAXBUtil {
 
         @Suppress("UNCHECKED_CAST")
         fun unmarshallNarmesteLederSkjema(value: String): XMLOppgiPersonallederM {
-            return (JAXBContext.createUnmarshaller().unmarshal(StringReader(value)) as JAXBElement<XMLOppgiPersonallederM>).value
+            return (JAXBContext.createUnmarshaller().unmarshal(StringReader(value))
+                    as JAXBElement<XMLOppgiPersonallederM>)
+                .value
         }
     }
 }

@@ -3,12 +3,12 @@ package no.nav.syfo.db
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import com.zaxxer.hikari.pool.HikariPool
-import no.nav.syfo.Environment
-import no.nav.syfo.log
-import org.flywaydb.core.Flyway
 import java.net.ConnectException
 import java.net.SocketException
 import java.sql.Connection
+import no.nav.syfo.Environment
+import no.nav.syfo.log
+import org.flywaydb.core.Flyway
 
 class Database(private val env: Environment, retries: Long = 60, sleepTime: Long = 5_000) :
     DatabaseInterface {
@@ -23,20 +23,21 @@ class Database(private val env: Environment, retries: Long = 60, sleepTime: Long
         while (!connected && current++ < retries) {
             log.info("trying to connet to db current try $current")
             try {
-                tempDatasource = HikariDataSource(
-                    HikariConfig().apply {
-                        jdbcUrl = env.jdbcUrl()
-                        username = env.databaseUsername
-                        password = env.databasePassword
-                        maximumPoolSize = 3
-                        minimumIdle = 1
-                        idleTimeout = 10000
-                        maxLifetime = 300000
-                        isAutoCommit = false
-                        transactionIsolation = "TRANSACTION_REPEATABLE_READ"
-                        validate()
-                    },
-                )
+                tempDatasource =
+                    HikariDataSource(
+                        HikariConfig().apply {
+                            jdbcUrl = env.jdbcUrl()
+                            username = env.databaseUsername
+                            password = env.databasePassword
+                            maximumPoolSize = 3
+                            minimumIdle = 1
+                            idleTimeout = 10000
+                            maxLifetime = 300000
+                            isAutoCommit = false
+                            transactionIsolation = "TRANSACTION_REPEATABLE_READ"
+                            validate()
+                        },
+                    )
                 connected = true
             } catch (ex: HikariPool.PoolInitializationException) {
                 if (ex.cause?.cause is ConnectException || ex.cause?.cause is SocketException) {
@@ -55,11 +56,12 @@ class Database(private val env: Environment, retries: Long = 60, sleepTime: Long
         runFlywayMigrations()
     }
 
-    private fun runFlywayMigrations() = Flyway.configure().run {
-        locations("db")
-        dataSource(env.jdbcUrl(), env.databaseUsername, env.databasePassword)
-        load().migrate()
-    }
+    private fun runFlywayMigrations() =
+        Flyway.configure().run {
+            locations("db")
+            dataSource(env.jdbcUrl(), env.databaseUsername, env.databasePassword)
+            load().migrate()
+        }
 }
 
 interface DatabaseInterface {

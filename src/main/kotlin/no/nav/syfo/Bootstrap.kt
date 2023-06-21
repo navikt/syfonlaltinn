@@ -44,10 +44,11 @@ fun main() {
     val env = Environment()
     DefaultExports.initialize()
     val applicationState = ApplicationState()
-    val applicationEngine = createApplicationEngine(
-        env,
-        applicationState,
-    )
+    val applicationEngine =
+        createApplicationEngine(
+            env,
+            applicationState,
+        )
     val applicationServer = ApplicationServer(applicationEngine, applicationState)
 
     val database = Database(env)
@@ -58,91 +59,109 @@ fun main() {
     propertiesTimeout["javax.xml.ws.client.connectionTimeout"] = timeoutMS
     propertiesTimeout["javax.xml.ws.client.receiveTimeout"] = timeoutMS
 
-    val iDownloadQueueExternalBasic = JaxWsProxyFactoryBean().apply {
-        address = env.altinnDownloadUrl
-        serviceClass = IDownloadQueueExternalBasic::class.java
-        properties = propertiesTimeout
-    }.create(IDownloadQueueExternalBasic::class.java)
+    val iDownloadQueueExternalBasic =
+        JaxWsProxyFactoryBean()
+            .apply {
+                address = env.altinnDownloadUrl
+                serviceClass = IDownloadQueueExternalBasic::class.java
+                properties = propertiesTimeout
+            }
+            .create(IDownloadQueueExternalBasic::class.java)
 
-    val kafkaProducer = KafkaProducer<String, NlResponseKafkaMessage>(
-        KafkaUtils
-            .getAivenKafkaConfig()
-            .toProducerConfig("syfonlaltinn-producer", JacksonKafkaSerializer::class, StringSerializer::class),
-    )
+    val kafkaProducer =
+        KafkaProducer<String, NlResponseKafkaMessage>(
+            KafkaUtils.getAivenKafkaConfig()
+                .toProducerConfig(
+                    "syfonlaltinn-producer",
+                    JacksonKafkaSerializer::class,
+                    StringSerializer::class
+                ),
+        )
 
-    val invalidKafkaProducer = KafkaProducer<String, Any>(
-        KafkaUtils
-            .getAivenKafkaConfig()
-            .toProducerConfig("syfonlaltinn-producer", JacksonKafkaSerializer::class, StringSerializer::class),
-    )
+    val invalidKafkaProducer =
+        KafkaProducer<String, Any>(
+            KafkaUtils.getAivenKafkaConfig()
+                .toProducerConfig(
+                    "syfonlaltinn-producer",
+                    JacksonKafkaSerializer::class,
+                    StringSerializer::class
+                ),
+        )
 
-    val kafkaConsumer = KafkaConsumer(
-        KafkaUtils.getAivenKafkaConfig().toConsumerConfig("syfonlaltinn", JacksonKafkaDeserializer::class).also {
-            it[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "none"
-        },
-        StringDeserializer(),
-        JacksonKafkaDeserializer(NlRequestKafkaMessage::class),
-    )
+    val kafkaConsumer =
+        KafkaConsumer(
+            KafkaUtils.getAivenKafkaConfig()
+                .toConsumerConfig("syfonlaltinn", JacksonKafkaDeserializer::class)
+                .also { it[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "none" },
+            StringDeserializer(),
+            JacksonKafkaDeserializer(NlRequestKafkaMessage::class),
+        )
     val httpclient = HttpClientFactory.getHttpClient()
-    val pdlClient = PdlClient(
-        HttpClientFactory.getHttpClient(),
-        env.pdlGraphqlPath,
-        env.pdlScope,
-        AccessTokenClient(
-            env.aadAccessTokenUrl,
-            env.clientId,
-            env.clientSecret,
-            httpclient,
-        ),
-    )
+    val pdlClient =
+        PdlClient(
+            HttpClientFactory.getHttpClient(),
+            env.pdlGraphqlPath,
+            env.pdlScope,
+            AccessTokenClient(
+                env.aadAccessTokenUrl,
+                env.clientId,
+                env.clientSecret,
+                httpclient,
+            ),
+        )
 
-    val iPreFillExternalBasic = JaxWsProxyFactoryBean().apply {
-        address = env.altinnPrefillUrl
-        serviceClass = IPreFillExternalBasic::class.java
-    }.create(IPreFillExternalBasic::class.java)
+    val iPreFillExternalBasic =
+        JaxWsProxyFactoryBean()
+            .apply {
+                address = env.altinnPrefillUrl
+                serviceClass = IPreFillExternalBasic::class.java
+            }
+            .create(IPreFillExternalBasic::class.java)
 
     val altinnOrgnummerLookup = AltinnOrgnummerLookupFactory.getOrgnummerResolver(env.cluster)
 
-    val narmesteLederRequestService = NarmesteLederRequestService(
-        env.navUsername,
-        env.navPassword,
-        iPreFillExternalBasic,
-        altinnOrgnummerLookup,
-    )
-    val narmesteLederRequestConsumerService = NarmesteLederRequestConsumerService(
-        kafkaConsumer,
-        applicationState,
-        env.nlRequestTopic,
-        narmesteLederRequestService,
-        database,
-    )
+    val narmesteLederRequestService =
+        NarmesteLederRequestService(
+            env.navUsername,
+            env.navPassword,
+            iPreFillExternalBasic,
+            altinnOrgnummerLookup,
+        )
+    val narmesteLederRequestConsumerService =
+        NarmesteLederRequestConsumerService(
+            kafkaConsumer,
+            applicationState,
+            env.nlRequestTopic,
+            narmesteLederRequestService,
+            database,
+        )
 
     val nlResponseKafkaProducer = NlResponseProducer(kafkaProducer, env.nlResponseTopic)
     val nlInvalidProducer = NlInvalidProducer(env.nlInvalidTopic, invalidKafkaProducer)
-    val narmesteLederDownloadService = NarmesteLederDownloadService(
-        iDownloadQueueExternalBasic,
-        env.navUsername,
-        env.navPassword,
-        applicationState,
-        nlResponseKafkaProducer,
-        nlInvalidProducer,
-        pdlClient,
-        env.cluster,
-    )
+    val narmesteLederDownloadService =
+        NarmesteLederDownloadService(
+            iDownloadQueueExternalBasic,
+            env.navUsername,
+            env.navPassword,
+            applicationState,
+            nlResponseKafkaProducer,
+            nlInvalidProducer,
+            pdlClient,
+            env.cluster,
+        )
 
-    startBackgroundJob(applicationState) {
-        narmesteLederDownloadService.start()
-    }
+    startBackgroundJob(applicationState) { narmesteLederDownloadService.start() }
 
-    startBackgroundJob(applicationState) {
-        narmesteLederRequestConsumerService.startConsumer()
-    }
+    startBackgroundJob(applicationState) { narmesteLederRequestConsumerService.startConsumer() }
 
     applicationServer.start()
 }
 
 @DelicateCoroutinesApi
-fun startBackgroundJob(applicationState: ApplicationState, block: suspend CoroutineScope.() -> Unit) {
+fun startBackgroundJob(
+    applicationState: ApplicationState,
+    block: suspend CoroutineScope.() -> Unit
+) {
     GlobalScope.launch {
         try {
             block()

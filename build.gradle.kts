@@ -28,15 +28,17 @@ val digisyfoNarmesteLederVersion = "1.2020.10.07-08.40-90b3ab7bad15"
 val commonsValidatorVersion = "1.7"
 val kotlinVersion = "1.8.22"
 val confluentVersion = "7.0.1"
+val ktfmtVersion = "0.44"
 
 tasks.withType<Jar> {
     manifest.attributes["Main-Class"] = "no.nav.syfo.BootstrapKt"
 }
 
 plugins {
-    id("org.jmailen.kotlinter") version "3.15.0"
+    id("com.diffplug.spotless") version "6.19.0"
     kotlin("jvm") version "1.8.22"
     id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("org.cyclonedx.bom") version "1.7.4"
 }
 
 buildscript {
@@ -145,7 +147,10 @@ tasks {
         }
     }
 
-    "check" {
-        dependsOn("formatKotlin")
+    spotless {
+        kotlin { ktfmt(ktfmtVersion).kotlinlangStyle() }
+        check {
+            dependsOn("spotlessApply")
+        }
     }
 }

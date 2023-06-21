@@ -29,7 +29,8 @@ class HttpClientFactory private constructor() {
                 HttpResponseValidator {
                     handleResponseExceptionWithRequest { exception, _ ->
                         when (exception) {
-                            is SocketTimeoutException -> throw ServiceUnavailableException(exception.message)
+                            is SocketTimeoutException ->
+                                throw ServiceUnavailableException(exception.message)
                         }
                     }
                 }

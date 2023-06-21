@@ -7,8 +7,7 @@ data class GetPersonResponse(
 )
 
 fun GetPersonResponse.toFnr(): String {
-    return data.identer?.identer?.first()?.ident
-        ?: throw RuntimeException("Fant ikke fnr i PDL")
+    return data.identer?.identer?.first()?.ident ?: throw RuntimeException("Fant ikke fnr i PDL")
 }
 
 data class ResponseData(

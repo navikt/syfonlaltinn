@@ -1,6 +1,7 @@
 package no.nav.syfo.altinn.narmesteleder
 
 import generated.XMLSkjemainnhold
+import java.io.IOException
 import kotlinx.coroutines.delay
 import no.altinn.schemas.services.archive.downloadqueue._2012._08.DownloadQueueItemBE
 import no.altinn.services.archive.downloadqueue._2012._08.IDownloadQueueExternalBasic
@@ -23,7 +24,6 @@ import no.nav.syfo.nl.model.Sykmeldt
 import no.nav.syfo.pdl.client.PdlClient
 import no.nav.syfo.pdl.client.exception.PersonNotFoundException
 import org.apache.commons.validator.routines.EmailValidator
-import java.io.IOException
 
 class NarmesteLederDownloadService(
     private val iDownloadQueueExternalBasic: IDownloadQueueExternalBasic,
@@ -51,15 +51,26 @@ class NarmesteLederDownloadService(
 
     private suspend fun pollDownloadQueueAndHandle() {
         try {
-            val items = retry(
-                callName = "getDownloadQueueItems",
-                retryIntervals = arrayOf(500L, 1000L, 300L),
-                legalExceptions = arrayOf(IOException::class, IDownloadQueueExternalBasicGetDownloadQueueItemsAltinnFaultFaultFaultMessage::class),
-            ) {
-                iDownloadQueueExternalBasic.getDownloadQueueItems(navUsername, navPassword, SERVICE_CODE)
-            }
+            val items =
+                retry(
+                    callName = "getDownloadQueueItems",
+                    retryIntervals = arrayOf(500L, 1000L, 300L),
+                    legalExceptions =
+                        arrayOf(
+                            IOException::class,
+                            IDownloadQueueExternalBasicGetDownloadQueueItemsAltinnFaultFaultFaultMessage::class
+                        ),
+                ) {
+                    iDownloadQueueExternalBasic.getDownloadQueueItems(
+                        navUsername,
+                        navPassword,
+                        SERVICE_CODE
+                    )
+                }
             if (items.downloadQueueItemBE.size > 0) {
-                log.info("Got items from download queue from altinn ${items.downloadQueueItemBE.size}")
+                log.info(
+                    "Got items from download queue from altinn ${items.downloadQueueItemBE.size}"
+                )
             }
             items.downloadQueueItemBE.forEach { handleDownloadItem(it) }
         } catch (ex: IDownloadQueueExternalBasicGetDownloadQueueItemsAltinnFaultFaultFaultMessage) {
@@ -74,24 +85,39 @@ class NarmesteLederDownloadService(
     }
 
     private suspend fun handleDownloadItem(it: DownloadQueueItemBE) {
-        val item = retry(
-            callName = "getArchivedFormTaskBasicDQ",
-            retryIntervals = arrayOf(500L, 1000L, 300L),
-            legalExceptions = arrayOf(IOException::class, IDownloadQueueExternalBasicGetArchivedFormTaskBasicDQAltinnFaultFaultFaultMessage::class),
-        ) {
-            iDownloadQueueExternalBasic.getArchivedFormTaskBasicDQ(navUsername, navPassword, it.archiveReference, LANGUAGE_ID, true)
-        }
+        val item =
+            retry(
+                callName = "getArchivedFormTaskBasicDQ",
+                retryIntervals = arrayOf(500L, 1000L, 300L),
+                legalExceptions =
+                    arrayOf(
+                        IOException::class,
+                        IDownloadQueueExternalBasicGetArchivedFormTaskBasicDQAltinnFaultFaultFaultMessage::class
+                    ),
+            ) {
+                iDownloadQueueExternalBasic.getArchivedFormTaskBasicDQ(
+                    navUsername,
+                    navPassword,
+                    it.archiveReference,
+                    LANGUAGE_ID,
+                    true
+                )
+            }
 
         item.forms.archivedFormDQBE.forEach {
             val formData = unmarshallNarmesteLederSkjema(it.formData)
             try {
                 val nlResponse = toNlResponse(formData.skjemainnhold)
                 nlResponseProducer.sendNlResponse(nlResponse)
-                log.info("Got item from altinn download queue ${item.archiveReference} and sendt to kafka")
+                log.info(
+                    "Got item from altinn download queue ${item.archiveReference} and sendt to kafka"
+                )
             } catch (e: ValidationException) {
                 INVALID_NL_SKJEMA.labels(e.type).inc()
                 nlInvalidProducer.send(formData.skjemainnhold.organisasjonsnummer, it)
-                log.warn("Kunne ikke behandle NL-skjema ${item.archiveReference} for orgnummer ${formData.skjemainnhold.organisasjonsnummer}: ${e.message}")
+                log.warn(
+                    "Kunne ikke behandle NL-skjema ${item.archiveReference} for orgnummer ${formData.skjemainnhold.organisasjonsnummer}: ${e.message}"
+                )
             } catch (e: PersonNotFoundException) {
                 if (cluster == "dev-gcp") {
                     log.error("Ignorerer testperson som ikke finnes i PDL i dev")
@@ -103,12 +129,17 @@ class NarmesteLederDownloadService(
         retry(
             callName = "getArchivedFormTaskBasicDQ",
             retryIntervals = arrayOf(500L, 1000L, 300L),
-            legalExceptions = arrayOf(IOException::class, IDownloadQueueExternalBasicPurgeItemAltinnFaultFaultFaultMessage::class),
+            legalExceptions =
+                arrayOf(
+                    IOException::class,
+                    IDownloadQueueExternalBasicPurgeItemAltinnFaultFaultFaultMessage::class
+                ),
         ) {
             iDownloadQueueExternalBasic.purgeItem(navUsername, navPassword, it.archiveReference)
         }
         log.info("Deleted ${it.archiveReference} from download queue")
     }
+
     private suspend fun toNlResponse(skjemaInnhold: XMLSkjemainnhold): NlResponse {
         val orgnummer = skjemaInnhold.organisasjonsnummer
         val utbetalesLonn = skjemaInnhold.utbetalesLonn?.value
@@ -128,17 +159,19 @@ class NarmesteLederDownloadService(
         return NlResponse(
             orgnummer = orgnummer,
             utbetalesLonn = utbetalesLonn,
-            leder = Leder(
-                fnr = pdlNlFnr,
-                mobil = nlMobil,
-                epost = nlEpost,
-                fornavn = nlFornavn,
-                etternavn = nlEtternavn,
-            ),
-            sykmeldt = Sykmeldt(
-                fnr = sykmeldtPdlFnr,
-                navn = sykmeldtNavn,
-            ),
+            leder =
+                Leder(
+                    fnr = pdlNlFnr,
+                    mobil = nlMobil,
+                    epost = nlEpost,
+                    fornavn = nlFornavn,
+                    etternavn = nlEtternavn,
+                ),
+            sykmeldt =
+                Sykmeldt(
+                    fnr = sykmeldtPdlFnr,
+                    navn = sykmeldtNavn,
+                ),
         )
     }
 
