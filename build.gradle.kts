@@ -29,6 +29,7 @@ val commonsValidatorVersion = "1.7"
 val kotlinVersion = "1.8.22"
 val confluentVersion = "7.0.1"
 val ktfmtVersion = "0.44"
+val commonsCodecVersion = "1.15"
 
 tasks.withType<Jar> {
     manifest.attributes["Main-Class"] = "no.nav.syfo.BootstrapKt"
@@ -76,9 +77,9 @@ dependencies {
     implementation("io.ktor:ktor-server-call-id:$ktorVersion")
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
-    implementation("io.ktor:ktor-client-apache:$ktorVersion"){
-        exclude(group = "commons-codec", module = "commons-codec")
-    }
+    implementation("io.ktor:ktor-client-apache:$ktorVersion")
+    implementation("commons-codec:commons-codec:$commonsCodecVersion")
+    // override transient version 1.10 from io.ktor:ktor-client-apache
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
