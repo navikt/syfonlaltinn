@@ -29,7 +29,7 @@ val commonsValidatorVersion = "1.7"
 val kotlinVersion = "1.8.22"
 val confluentVersion = "7.0.1"
 val ktfmtVersion = "0.44"
-val commonsCodecVersion = "1.15"
+val commonsCodecVersion = "1.16.0"
 
 tasks.withType<Jar> {
     manifest.attributes["Main-Class"] = "no.nav.syfo.BootstrapKt"
