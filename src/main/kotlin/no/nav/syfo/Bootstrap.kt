@@ -70,7 +70,7 @@ fun main() {
 
     val kafkaProducer =
         KafkaProducer<String, NlResponseKafkaMessage>(
-            KafkaUtils.getAivenKafkaConfig()
+            KafkaUtils.getAivenKafkaConfig("status-producer")
                 .toProducerConfig(
                     "syfonlaltinn-producer",
                     JacksonKafkaSerializer::class,
@@ -80,7 +80,7 @@ fun main() {
 
     val invalidKafkaProducer =
         KafkaProducer<String, Any>(
-            KafkaUtils.getAivenKafkaConfig()
+            KafkaUtils.getAivenKafkaConfig("status-producer")
                 .toProducerConfig(
                     "syfonlaltinn-producer",
                     JacksonKafkaSerializer::class,
@@ -90,7 +90,7 @@ fun main() {
 
     val kafkaConsumer =
         KafkaConsumer(
-            KafkaUtils.getAivenKafkaConfig()
+            KafkaUtils.getAivenKafkaConfig("status-producer")
                 .toConsumerConfig("syfonlaltinn", JacksonKafkaDeserializer::class)
                 .also { it[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "none" },
             StringDeserializer(),
