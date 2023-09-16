@@ -8,7 +8,7 @@ version = "1.0.0"
 val coroutinesVersion = "1.7.3"
 val jacksonVersion = "2.15.2"
 val kluentVersion = "1.73"
-val ktorVersion = "2.3.3"
+val ktorVersion = "2.3.4"
 val logbackVersion = "1.4.11"
 val logstashEncoderVersion = "7.4"
 val prometheusVersion = "0.16.0"
@@ -26,21 +26,22 @@ val hikariVersion = "5.0.1"
 val testContainerVersion = "1.18.3"
 val digisyfoNarmesteLederVersion = "1.2020.10.07-08.40-90b3ab7bad15"
 val commonsValidatorVersion = "1.7"
-val kotlinVersion = "1.9.0"
+val kotlinVersion = "1.9.10"
 val confluentVersion = "7.0.1"
 val ktfmtVersion = "0.44"
 val commonsCodecVersion = "1.16.0"
 
-tasks.withType<Jar> {
-    manifest.attributes["Main-Class"] = "no.nav.syfo.BootstrapKt"
+plugins {
+    id("application")
+    id("com.diffplug.spotless") version "6.21.0"
+    kotlin("jvm") version "1.9.10"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
-plugins {
-    id("com.diffplug.spotless") version "6.20.0"
-    kotlin("jvm") version "1.9.0"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
-    id("org.cyclonedx.bom") version "1.7.4"
+application {
+    mainClass.set("no.nav.syfo.BootstrapKt")
 }
+
 
 val githubUser: String by project
 val githubPassword: String by project
@@ -118,22 +119,25 @@ dependencies {
 
 tasks {
 
-    create("printVersion") {
-        println(project.version)
-    }
-
-    withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "17"
-    }
-
-    withType<ShadowJar> {
+    shadowJar {
         transform(ServiceFileTransformer::class.java) {
-            setPath("META-INF/cxf")
-            include("bus-extensions.txt")
+        setPath("META-INF/cxf")
+        include("bus-extensions.txt")
+        }
+        archiveBaseName.set("app")
+        archiveClassifier.set("")
+        isZip64 = true
+        manifest {
+            attributes(
+                mapOf(
+                    "Main-Class" to "no.nav.syfo.BootstrapKt",
+                ),
+            )
         }
     }
 
-    withType<Test> {
+
+    test {
         useJUnitPlatform {
         }
         testLogging {
