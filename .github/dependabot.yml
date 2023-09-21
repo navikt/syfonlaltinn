@@ -7,11 +7,8 @@ updates:
     open-pull-requests-limit: 10
     ignore:
       - dependency-name: "org.apache.cxf:cxf-rt-frontend-jaxws"
-        update-types: ["version-update:semver-major"]
       - dependency-name: "org.apache.cxf:cxf-rt-transports-http"
-        update-types: ["version-update:semver-major"]
       - dependency-name: "com.sun.xml.ws:jaxws-tools"
-        update-types: ["version-update:semver-major"]
     groups:
       dependencies:
         patterns:
