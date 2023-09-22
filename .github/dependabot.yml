@@ -9,6 +9,9 @@ updates:
       - dependency-name: "org.apache.cxf:cxf-rt-frontend-jaxws"
       - dependency-name: "org.apache.cxf:cxf-rt-transports-http"
       - dependency-name: "com.sun.xml.ws:jaxws-tools"
+      - dependency-name: "no.nav.tjenestespesifikasjoner:altinn-download-queue-external"
+      - dependency-name: "no.nav.tjenestespesifikasjoner:altinn-pre-fill"
+      - dependency-name: "no.nav.tjenestespesifikasjoner:digisyfo-naermesteLeder"
     groups:
       dependencies:
         patterns:
