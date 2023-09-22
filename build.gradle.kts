@@ -10,8 +10,8 @@ val ktorVersion = "2.3.4"
 val logbackVersion = "1.4.11"
 val logstashEncoderVersion = "7.4"
 val prometheusVersion = "0.16.0"
-val kotestVersion = "5.6.2"
-val smCommonVersion = "1.0.19"
+val kotestVersion = "5.7.2"
+val smCommonVersion = "2.0.0"
 val mockkVersion = "1.13.7"
 val altinnDownloadQueueVersion = "1.2020.10.21-14.38-e6bb56478815"
 val altinnPrefillVersion = "1.2020.10.21-14.38-e6bb56478815"
@@ -19,9 +19,9 @@ val cxfVersion = "3.5.5"
 val jaxwsToolsVersion = "2.3.1"
 val javaxActivationVersion = "1.2.0"
 val postgresVersion = "42.6.0"
-val flywayVersion = "9.21.1"
+val flywayVersion = "9.22.2"
 val hikariVersion = "5.0.1"
-val testContainerVersion = "1.18.3"
+val testContainerVersion = "1.19.0"
 val digisyfoNarmesteLederVersion = "1.2020.10.07-08.40-90b3ab7bad15"
 val commonsValidatorVersion = "1.7"
 val kotlinVersion = "1.9.10"
@@ -64,8 +64,11 @@ dependencies {
     implementation("io.ktor:ktor-serialization-jackson:$ktorVersion")
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-apache:$ktorVersion")
-    implementation("commons-codec:commons-codec:$commonsCodecVersion")
-    // override transient version 1.10 from io.ktor:ktor-client-apache
+    constraints {
+        implementation("commons-codec:commons-codec:$commonsCodecVersion") {
+            because("override transient from io.ktor:ktor-client-apache")
+        }
+    }
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
