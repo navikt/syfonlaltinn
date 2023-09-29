@@ -28,6 +28,8 @@ val kotlinVersion = "1.9.10"
 val confluentVersion = "7.0.1"
 val ktfmtVersion = "0.44"
 val commonsCodecVersion = "1.16.0"
+val snappyJavaVersion = "1.1.10.5"
+
 
 plugins {
     id("application")
@@ -93,6 +95,11 @@ dependencies {
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("org.flywaydb:flyway-core:$flywayVersion")
     implementation("no.nav.helse:syfosm-common-kafka:$smCommonVersion")
+    constraints {
+        implementation("org.xerial.snappy:snappy-java:$snappyJavaVersion") {
+            because("override transient from org.apache.kafka:kafka_2.12")
+        }
+    }
     implementation("no.nav.helse:syfosm-common-networking:$smCommonVersion")
     implementation("commons-validator:commons-validator:$commonsValidatorVersion"){
         exclude(group = "commons-collections", module = "commons-collections")
