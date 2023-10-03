@@ -21,7 +21,7 @@ val javaxActivationVersion = "1.2.0"
 val postgresVersion = "42.6.0"
 val flywayVersion = "9.22.2"
 val hikariVersion = "5.0.1"
-val testContainerVersion = "1.19.0"
+val testContainerVersion = "1.19.1"
 val digisyfoNarmesteLederVersion = "1.2020.10.07-08.40-90b3ab7bad15"
 val commonsValidatorVersion = "1.7"
 val kotlinVersion = "1.9.10"
@@ -33,7 +33,7 @@ val snappyJavaVersion = "1.1.10.5"
 
 plugins {
     id("application")
-    id("com.diffplug.spotless") version "6.21.0"
+    id("com.diffplug.spotless") version "6.22.0"
     kotlin("jvm") version "1.9.10"
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
