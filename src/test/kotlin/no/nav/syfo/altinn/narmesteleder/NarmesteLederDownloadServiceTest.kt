@@ -4,7 +4,6 @@ import generated.XMLNaermesteLeder
 import generated.XMLOppgiPersonallederM
 import generated.XMLSkjemainnhold
 import generated.XMLSykmeldt
-import io.kotest.core.spec.style.FunSpec
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -15,6 +14,7 @@ import io.mockk.verify
 import javax.xml.bind.JAXBElement
 import javax.xml.namespace.QName
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import no.altinn.schemas.services.archive.downloadqueue._2012._08.DownloadQueueItemBE
 import no.altinn.schemas.services.archive.downloadqueue._2012._08.DownloadQueueItemBEList
 import no.altinn.schemas.services.archive.reporteearchive._2012._08.ArchivedFormDQBE
@@ -25,85 +25,93 @@ import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.nl.kafka.NlInvalidProducer
 import no.nav.syfo.nl.kafka.NlResponseProducer
 import no.nav.syfo.pdl.client.PdlClient
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
-class NarmesteLederDownloadServiceTest :
-    FunSpec({
-        val iDownload = mockk<IDownloadQueueExternalBasic>()
-        val applicationState = mockk<ApplicationState>()
-        val nlResponseProducer = mockk<NlResponseProducer>()
-        val nlInvalidProducer = mockk<NlInvalidProducer>()
-        val pdlClient = mockk<PdlClient>(relaxed = true)
-        val service =
-            NarmesteLederDownloadService(
-                iDownload,
-                "NAV",
-                "PASSWORD",
-                applicationState,
-                nlResponseProducer,
-                nlInvalidProducer,
-                pdlClient,
-                "prod-gcp",
-            )
+class NarmesteLederDownloadServiceTest {
+    val iDownload = mockk<IDownloadQueueExternalBasic>()
+    val applicationState = mockk<ApplicationState>()
+    val nlResponseProducer = mockk<NlResponseProducer>()
+    val nlInvalidProducer = mockk<NlInvalidProducer>()
+    val pdlClient = mockk<PdlClient>(relaxed = true)
+    val service =
+        NarmesteLederDownloadService(
+            iDownload,
+            "NAV",
+            "PASSWORD",
+            applicationState,
+            nlResponseProducer,
+            nlInvalidProducer,
+            pdlClient,
+            "prod-gcp",
+        )
+
+    @BeforeEach
+    fun beforeTest() {
         mockkStatic("kotlinx.coroutines.DelayKt")
+        clearAllMocks()
+        coEvery { delay(any<Long>()) } returns Unit
+    }
 
-        beforeTest {
-            clearAllMocks()
-            coEvery { delay(any<Long>()) } returns Unit
+    @Test
+    internal fun `Test NarmesteLederDownloadService should handele it`() {
+        setupTest(iDownload, applicationState, nlResponseProducer, nlInvalidProducer)
+
+        runBlocking {
+            service.start()
+
+            verify(exactly = 1) { iDownload.purgeItem("NAV", "PASSWORD", "1") }
+            verify(exactly = 1) {
+                iDownload.getArchivedFormTaskBasicDQ("NAV", "PASSWORD", "1", 1033, true)
+            }
+            verify(exactly = 1) { nlResponseProducer.sendNlResponse(any()) }
+            verify(exactly = 0) { nlInvalidProducer.send(any(), any()) }
+            coVerify(exactly = 2) { pdlClient.getGjeldendeFnr(any()) }
         }
+    }
 
-        context("Test NarmesteLederDownloadService") {
-            test("Should handele it") {
-                setupTest(iDownload, applicationState, nlResponseProducer, nlInvalidProducer)
+    @Test
+    internal fun `Test NarmesteLederDownloadService should not handle incorrect fnr`() {
+        setupTest(
+            iDownload,
+            applicationState,
+            nlResponseProducer,
+            nlInvalidProducer,
+            "89000000019",
+        )
+        runBlocking {
+            service.start()
 
-                service.start()
-
-                verify(exactly = 1) { iDownload.purgeItem("NAV", "PASSWORD", "1") }
-                verify(exactly = 1) {
-                    iDownload.getArchivedFormTaskBasicDQ("NAV", "PASSWORD", "1", 1033, true)
-                }
-                verify(exactly = 1) { nlResponseProducer.sendNlResponse(any()) }
-                verify(exactly = 0) { nlInvalidProducer.send(any(), any()) }
-                coVerify(exactly = 2) { pdlClient.getGjeldendeFnr(any()) }
+            verify(exactly = 1) { iDownload.purgeItem("NAV", "PASSWORD", "1") }
+            verify(exactly = 1) {
+                iDownload.getArchivedFormTaskBasicDQ("NAV", "PASSWORD", "1", 1033, true)
             }
-
-            test("Should not handle incorrect fnr") {
-                setupTest(
-                    iDownload,
-                    applicationState,
-                    nlResponseProducer,
-                    nlInvalidProducer,
-                    "89000000019"
-                )
-
-                service.start()
-
-                verify(exactly = 1) { iDownload.purgeItem("NAV", "PASSWORD", "1") }
-                verify(exactly = 1) {
-                    iDownload.getArchivedFormTaskBasicDQ("NAV", "PASSWORD", "1", 1033, true)
-                }
-                verify(exactly = 0) { nlResponseProducer.sendNlResponse(any()) }
-                verify(exactly = 1) { nlInvalidProducer.send(any(), any()) }
-            }
-            test("Should not handle incorrect email") {
-                setupTest(
-                    iDownload,
-                    applicationState,
-                    nlResponseProducer,
-                    nlInvalidProducer,
-                    email = "a.b.c.d"
-                )
-
-                service.start()
-
-                verify(exactly = 1) { iDownload.purgeItem("NAV", "PASSWORD", "1") }
-                verify(exactly = 1) {
-                    iDownload.getArchivedFormTaskBasicDQ("NAV", "PASSWORD", "1", 1033, true)
-                }
-                verify(exactly = 0) { nlResponseProducer.sendNlResponse(any()) }
-                verify(exactly = 1) { nlInvalidProducer.send(any(), any()) }
-            }
+            verify(exactly = 0) { nlResponseProducer.sendNlResponse(any()) }
+            verify(exactly = 1) { nlInvalidProducer.send(any(), any()) }
         }
-    })
+    }
+
+    @Test
+    internal fun `Test NarmesteLederDownloadService should not handle incorrect email`() {
+        setupTest(
+            iDownload,
+            applicationState,
+            nlResponseProducer,
+            nlInvalidProducer,
+            email = "a.b.c.d",
+        )
+        runBlocking {
+            service.start()
+
+            verify(exactly = 1) { iDownload.purgeItem("NAV", "PASSWORD", "1") }
+            verify(exactly = 1) {
+                iDownload.getArchivedFormTaskBasicDQ("NAV", "PASSWORD", "1", 1033, true)
+            }
+            verify(exactly = 0) { nlResponseProducer.sendNlResponse(any()) }
+            verify(exactly = 1) { nlInvalidProducer.send(any(), any()) }
+        }
+    }
+}
 
 private fun setupTest(
     iDownload: IDownloadQueueExternalBasic,
@@ -210,7 +218,7 @@ private fun generateFormData(lederFnr: String, email: String): String {
                             ),
                         )
                         .withUtbetalesLonn(
-                            JAXBElement(QName("utbetalesLonn"), Boolean::class.java, true)
+                            JAXBElement(QName("utbetalesLonn"), Boolean::class.java, true),
                         )
                         .withOrganisasjonsnummer("123456789"),
                 ),

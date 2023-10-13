@@ -10,7 +10,6 @@ val ktorVersion = "2.3.5"
 val logbackVersion = "1.4.11"
 val logstashEncoderVersion = "7.4"
 val prometheusVersion = "0.16.0"
-val kotestVersion = "5.7.2"
 val smCommonVersion = "2.0.3"
 val mockkVersion = "1.13.8"
 val altinnDownloadQueueVersion = "1.2020.10.21-14.38-e6bb56478815"
@@ -29,7 +28,7 @@ val confluentVersion = "7.0.1"
 val ktfmtVersion = "0.44"
 val commonsCodecVersion = "1.16.0"
 val snappyJavaVersion = "1.1.10.5"
-
+val junitVersion = "5.10.0"
 
 plugins {
     id("application")
@@ -108,7 +107,8 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
-    testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.testcontainers:kafka:$testContainerVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")

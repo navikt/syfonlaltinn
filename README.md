@@ -5,7 +5,7 @@ This project contains the application code and infrastructure for syfonlaltinn
 * Kotlin
 * Ktor
 * Gradle
-* Kotest
+* Junit
 
 ## Getting started
 ### Building the application

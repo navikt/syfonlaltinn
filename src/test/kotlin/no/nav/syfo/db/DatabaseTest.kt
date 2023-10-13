@@ -1,6 +1,5 @@
 package no.nav.syfo.db
 
-import io.kotest.core.spec.style.FunSpec
 import io.mockk.every
 import io.mockk.mockk
 import java.time.Clock
@@ -15,116 +14,136 @@ import no.nav.syfo.altinn.narmesteleder.db.insertAltinnStatus
 import no.nav.syfo.altinn.narmesteleder.db.updateAltinnStatus
 import no.nav.syfo.altinn.narmesteleder.model.AltinnStatus
 import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.testcontainers.containers.PostgreSQLContainer
 
 class PsqlContainer : PostgreSQLContainer<PsqlContainer>("postgres:12.0")
 
-class DatabaseTest :
-    FunSpec({
-        val mockEnv = mockk<Environment>(relaxed = true)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+internal class DatabaseTest {
+    val mockEnv = mockk<Environment>(relaxed = true)
+
+    val psqlContainer =
+        PsqlContainer()
+            .withExposedPorts(5432)
+            .withUsername("username")
+            .withPassword("password")
+            .withDatabaseName("databasename1")
+            .withInitScript("db/testdb-init.sql")
+
+    @BeforeAll
+    fun beforeAll() {
+        psqlContainer.start()
+    }
+
+    @BeforeEach
+    fun beforeTest() {
         every { mockEnv.databaseUsername } returns "username"
         every { mockEnv.databasePassword } returns "password"
+    }
 
-        val psqlContainer =
-            PsqlContainer()
-                .withExposedPorts(5432)
-                .withUsername("username")
-                .withPassword("password")
-                .withDatabaseName("databasename1")
-                .withInitScript("db/testdb-init.sql")
+    @Test
+    internal fun `Test database should fail 4 times then connect`() {
+        every { mockEnv.jdbcUrl() } returnsMany
+            (0 until 4).map { "jdbc:postgresql://127.0.0.1:5433/databasename1" } andThen
+            psqlContainer.jdbcUrl
+        Database(mockEnv, 5, 0)
+    }
 
-        psqlContainer.start()
+    @Test
+    internal fun `Test database fail after timeout exeeded`() {
+        every { mockEnv.jdbcUrl() } returns "jdbc:postgresql://127.0.0.1:5433/databasename1"
+        assertFailsWith<RuntimeException> { Database(mockEnv, retries = 5, sleepTime = 0) }
+    }
 
-        beforeTest {
-            every { mockEnv.databaseUsername } returns "username"
-            every { mockEnv.databasePassword } returns "password"
-        }
+    @Test
+    internal fun `Test db queries Insert new sykmeldingStatus`() {
+        every { mockEnv.jdbcUrl() } returns psqlContainer.jdbcUrl
+        val database = Database(mockEnv)
 
-        context("Test database") {
-            test("Should fail 4 times then connect") {
-                every { mockEnv.jdbcUrl() } returnsMany
-                    (0 until 4).map { "jdbc:postgresql://127.0.0.1:5433/databasename1" } andThen
-                    psqlContainer.jdbcUrl
-                Database(mockEnv, 5, 0)
-            }
-            test("Fail after timeout exeeded") {
-                every { mockEnv.jdbcUrl() } returns "jdbc:postgresql://127.0.0.1:5433/databasename1"
-                assertFailsWith<RuntimeException> { Database(mockEnv, retries = 5, sleepTime = 0) }
-            }
-        }
+        val altinnStatus = getAltinnStatus()
+        database.insertAltinnStatus(altinnStatus)
 
-        context("Test db queries") {
-            every { mockEnv.jdbcUrl() } returns psqlContainer.jdbcUrl
-            val database = Database(mockEnv)
+        val queryById = database.getAltinnStatus(altinnStatus.id)
+        queryById shouldBeEqualTo altinnStatus
 
-            test("Insert new sykmeldingStatus") {
-                val altinnStatus = getAltinnStatus()
-                database.insertAltinnStatus(altinnStatus)
+        val queryBySykmeldingId = database.getAltinnStatus(altinnStatus.id)
+        queryBySykmeldingId shouldBeEqualTo altinnStatus
+    }
 
-                val queryById = database.getAltinnStatus(altinnStatus.id)
-                queryById shouldBeEqualTo altinnStatus
+    @Test
+    internal fun `Test db update status`() {
+        every { mockEnv.jdbcUrl() } returns psqlContainer.jdbcUrl
+        val database = Database(mockEnv)
+        val altinnStatus = getAltinnStatus()
+        database.insertAltinnStatus(altinnStatus)
 
-                val queryBySykmeldingId = database.getAltinnStatus(altinnStatus.id)
-                queryBySykmeldingId shouldBeEqualTo altinnStatus
-            }
+        val updated = altinnStatus.copy(status = AltinnStatus.Status.SENDT)
+        database.updateAltinnStatus(updated)
 
-            test("Update status") {
-                val altinnStatus = getAltinnStatus()
-                database.insertAltinnStatus(altinnStatus)
+        val status = database.getAltinnStatus(altinnStatus.id)
+        status!!.status shouldBeEqualTo updated.status
+    }
 
-                val updated = altinnStatus.copy(status = AltinnStatus.Status.SENDT)
-                database.updateAltinnStatus(updated)
+    @Test
+    internal fun `Should update status with senders reference`() {
+        every { mockEnv.jdbcUrl() } returns psqlContainer.jdbcUrl
+        val database = Database(mockEnv)
 
-                val status = database.getAltinnStatus(altinnStatus.id)
-                status!!.status shouldBeEqualTo updated.status
-            }
+        val status = getAltinnStatus()
+        database.insertAltinnStatus(status)
 
-            test("Should update status with senders reference") {
-                val status = getAltinnStatus()
-                database.insertAltinnStatus(status)
+        val updataStatus = status.copy(status = AltinnStatus.Status.SENDT, sendersReference = "123")
+        database.updateAltinnStatus(updataStatus)
 
-                val updataStatus =
-                    status.copy(status = AltinnStatus.Status.SENDT, sendersReference = "123")
-                database.updateAltinnStatus(updataStatus)
+        database.getAltinnStatus(status.id) shouldBeEqualTo updataStatus
+    }
 
-                database.getAltinnStatus(status.id) shouldBeEqualTo updataStatus
-            }
+    @Test
+    internal fun `erSendtSisteUke er true hvis melding er sendt for 6 dager siden`() {
+        every { mockEnv.jdbcUrl() } returns psqlContainer.jdbcUrl
+        val database = Database(mockEnv)
 
-            test("erSendtSisteUke er true hvis melding er sendt for 6 dager siden") {
-                val altinnStatus =
-                    getAltinnStatus()
-                        .copy(
-                            fnr = "fnr1",
-                            status = AltinnStatus.Status.SENDT,
-                            timestamp = getTickMillis().minusDays(6)
-                        )
-                database.insertAltinnStatus(altinnStatus)
-
-                database.erSendtSisteUke(
-                    orgnummer = "orgnr",
+        val altinnStatus =
+            getAltinnStatus()
+                .copy(
                     fnr = "fnr1",
-                    enUkeSiden = getTickMillis().minusWeeks(1)
-                ) shouldBeEqualTo true
-            }
+                    status = AltinnStatus.Status.SENDT,
+                    timestamp = getTickMillis().minusDays(6),
+                )
+        database.insertAltinnStatus(altinnStatus)
 
-            test("erSendtSisteUke er false hvis melding er sendt for 8 dager siden") {
-                val altinnStatus =
-                    getAltinnStatus()
-                        .copy(
-                            fnr = "fnr2",
-                            status = AltinnStatus.Status.SENDT,
-                            timestamp = getTickMillis().minusDays(8)
-                        )
-                database.insertAltinnStatus(altinnStatus)
+        database.erSendtSisteUke(
+            orgnummer = "orgnr",
+            fnr = "fnr1",
+            enUkeSiden = getTickMillis().minusWeeks(1),
+        ) shouldBeEqualTo true
+    }
 
-                database.erSendtSisteUke(
-                    orgnummer = "orgnr",
+    @Test
+    internal fun `erSendtSisteUke er false hvis melding er sendt for 8 dager siden`() {
+        every { mockEnv.jdbcUrl() } returns psqlContainer.jdbcUrl
+        val database = Database(mockEnv)
+
+        val altinnStatus =
+            getAltinnStatus()
+                .copy(
                     fnr = "fnr2",
-                    enUkeSiden = getTickMillis().minusWeeks(1)
-                ) shouldBeEqualTo false
-            }
-        }
-    })
+                    status = AltinnStatus.Status.SENDT,
+                    timestamp = getTickMillis().minusDays(8),
+                )
+        database.insertAltinnStatus(altinnStatus)
+
+        database.erSendtSisteUke(
+            orgnummer = "orgnr",
+            fnr = "fnr2",
+            enUkeSiden = getTickMillis().minusWeeks(1),
+        ) shouldBeEqualTo false
+    }
+}
 
 fun getTickMillis(): OffsetDateTime {
     return OffsetDateTime.now(Clock.tickMillis(ZoneOffset.UTC))
