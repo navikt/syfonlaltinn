@@ -28,7 +28,7 @@ val confluentVersion = "7.0.1"
 val ktfmtVersion = "0.44"
 val commonsCodecVersion = "1.16.0"
 val snappyJavaVersion = "1.1.10.5"
-val junitVersion = "5.10.0"
+val junitVersion = "5.10.1"
 
 plugins {
     id("application")
