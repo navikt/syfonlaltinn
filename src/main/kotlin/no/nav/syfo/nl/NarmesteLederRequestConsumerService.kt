@@ -1,9 +1,10 @@
 package no.nav.syfo.nl
 
-import java.time.Duration
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.UUID
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 import kotlinx.coroutines.delay
 import no.nav.syfo.altinn.narmesteleder.NarmesteLederRequestService
 import no.nav.syfo.altinn.narmesteleder.db.erSendtSisteUke
@@ -30,7 +31,7 @@ class NarmesteLederRequestConsumerService(
         kafkaConsumer.subscribe(listOf(topic))
         log.info("Starting consuming topic $topic")
         while (applicationState.ready) {
-            kafkaConsumer.poll(Duration.ZERO).forEach {
+            kafkaConsumer.poll(10_000.seconds.toJavaDuration()).forEach {
                 val nlRequest = it.value().nlRequest
                 if (erSendtSisteUke(orgnummer = nlRequest.orgnr, fnr = nlRequest.fnr)) {
                     log.info(
