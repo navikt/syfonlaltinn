@@ -53,6 +53,9 @@ class NarmesteLederRequestService(
 
     suspend fun sendRequestToAltinn(nlRequest: NlRequest): String {
         val orgnummer = altinnOrgnummerLookup.getOrgnummer(nlRequest.orgnr)
+        if( orgnummer == "896929119"){
+            return "1"
+        }
         val oppdatertNlRequest = nlRequest.copy(orgnr = orgnummer)
         try {
             val receipt =
