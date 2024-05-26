@@ -127,6 +127,7 @@ fun main() {
             env.navPassword,
             iPreFillExternalBasic,
             altinnOrgnummerLookup,
+            env.cluster,
         )
     val narmesteLederRequestConsumerService =
         NarmesteLederRequestConsumerService(

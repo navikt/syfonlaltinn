@@ -35,6 +35,7 @@ class NarmesteLederRequestService(
     private val navPassword: String,
     private val iPreFillExternalBasic: IPreFillExternalBasic,
     private val altinnOrgnummerLookup: AltinnOrgnummerLookup,
+    private val cluster: String,
 ) {
     companion object {
         private const val NARMESTE_LEDER_TJENESTEKODE = "4596"
@@ -53,6 +54,9 @@ class NarmesteLederRequestService(
 
     suspend fun sendRequestToAltinn(nlRequest: NlRequest): String {
         val orgnummer = altinnOrgnummerLookup.getOrgnummer(nlRequest.orgnr)
+        if(cluster =="dev-gcp" && orgnummer == "896929119") {
+            return "1"
+        }
         val oppdatertNlRequest = nlRequest.copy(orgnr = orgnummer)
         try {
             val receipt =
