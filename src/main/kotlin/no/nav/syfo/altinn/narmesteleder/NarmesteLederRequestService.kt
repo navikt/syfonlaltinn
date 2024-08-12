@@ -54,7 +54,7 @@ class NarmesteLederRequestService(
 
     suspend fun sendRequestToAltinn(nlRequest: NlRequest): String {
         val orgnummer = altinnOrgnummerLookup.getOrgnummer(nlRequest.orgnr)
-        if(cluster =="dev-gcp" && orgnummer == "896929119") {
+        if (cluster == "dev-gcp" && orgnummer == "896929119") {
             return "1"
         }
         val oppdatertNlRequest = nlRequest.copy(orgnr = orgnummer)
