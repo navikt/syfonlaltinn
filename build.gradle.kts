@@ -10,7 +10,6 @@ val ktorVersion = "2.3.12"
 val logbackVersion = "1.5.6"
 val logstashEncoderVersion = "8.0"
 val prometheusVersion = "0.16.0"
-val smCommonVersion = "2.0.8"
 val mockkVersion = "1.13.12"
 val altinnDownloadQueueVersion = "1.2020.10.21-14.38-e6bb56478815"
 val altinnPrefillVersion = "1.2020.10.21-14.38-e6bb56478815"
@@ -27,8 +26,8 @@ val kotlinVersion = "2.0.10"
 val confluentVersion = "7.0.1"
 val ktfmtVersion = "0.44"
 val commonsCodecVersion = "1.17.1"
-val snappyJavaVersion = "1.1.10.6"
 val junitVersion = "5.10.3"
+val kafkaVersion = "3.8.0"
 
 plugins {
     id("application")
@@ -94,13 +93,11 @@ dependencies {
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     compileOnly("org.flywaydb:flyway-core:$flywayVersion")
     implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
-    implementation("no.nav.helse:syfosm-common-kafka:$smCommonVersion")
-    constraints {
-        implementation("org.xerial.snappy:snappy-java:$snappyJavaVersion") {
-            because("override transient from org.apache.kafka:kafka_2.12")
-        }
-    }
-    implementation("no.nav.helse:syfosm-common-networking:$smCommonVersion")
+
+
+    implementation("org.apache.kafka:kafka_2.12:$kafkaVersion")
+
+
     implementation("commons-validator:commons-validator:$commonsValidatorVersion"){
         exclude(group = "commons-collections", module = "commons-collections")
     }
