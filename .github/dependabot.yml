@@ -12,6 +12,8 @@ updates:
       - dependency-name: "no.nav.tjenestespesifikasjoner:altinn-download-queue-external"
       - dependency-name: "no.nav.tjenestespesifikasjoner:altinn-pre-fill"
       - dependency-name: "no.nav.tjenestespesifikasjoner:digisyfo-naermesteLeder"
+      - dependency-name: "org.apache.kafka:kafka_2.12"
+        update-types: [ "version-update:semver-major" ]
     groups:
       dependencies:
         patterns:
