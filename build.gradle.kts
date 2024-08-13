@@ -27,7 +27,7 @@ val confluentVersion = "7.0.1"
 val ktfmtVersion = "0.44"
 val commonsCodecVersion = "1.17.1"
 val junitVersion = "5.10.3"
-val kafkaVersion = "3.8.0"
+val kafkaVersion = "7.7.0-ce"
 
 plugins {
     id("application")
