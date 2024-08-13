@@ -28,6 +28,8 @@ val ktfmtVersion = "0.44"
 val commonsCodecVersion = "1.17.1"
 val junitVersion = "5.10.3"
 val kafkaVersion = "3.8.0"
+val commonsCollectionsVersion = "3.2.2"
+val commonsCompressVersion = "1.26.2"
 
 plugins {
     id("application")
@@ -83,6 +85,11 @@ dependencies {
     implementation("no.nav.tjenestespesifikasjoner:altinn-pre-fill:$altinnPrefillVersion")
     implementation("no.nav.tjenestespesifikasjoner:digisyfo-naermesteLeder:$digisyfoNarmesteLederVersion")
     implementation("org.apache.cxf:cxf-rt-frontend-jaxws:$cxfVersion")
+    constraints {
+        implementation("commons-collections:commons-collections:$commonsCollectionsVersion") {
+            because("override transient from org.apache.cxf:cxf-rt-frontend-jaxws")
+        }
+    }
     implementation("org.apache.cxf:cxf-rt-transports-http:$cxfVersion")
     implementation("com.sun.activation:javax.activation:$javaxActivationVersion")
     implementation("com.sun.xml.ws:jaxws-tools:$jaxwsToolsVersion") {
@@ -108,6 +115,11 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.testcontainers:kafka:$testContainerVersion")
+    constraints {
+        testImplementation("org.apache.commons:commons-compress:$commonsCompressVersion") {
+            because("overrides vulnerable dependency from org.testcontainers:kafka")
+        }
+    }
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")
     }
