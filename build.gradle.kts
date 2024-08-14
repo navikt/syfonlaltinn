@@ -17,7 +17,7 @@ val cxfVersion = "3.5.5"
 val jaxwsToolsVersion = "2.3.1"
 val javaxActivationVersion = "1.2.0"
 val postgresVersion = "42.7.3"
-val flywayVersion = "10.17.0"
+val flywayVersion = "10.17.1"
 val hikariVersion = "5.1.0"
 val testContainerVersion = "1.20.1"
 val digisyfoNarmesteLederVersion = "1.2020.10.07-08.40-90b3ab7bad15"
@@ -29,7 +29,7 @@ val commonsCodecVersion = "1.17.1"
 val junitVersion = "5.10.3"
 val kafkaVersion = "3.8.0"
 val commonsCollectionsVersion = "3.2.2"
-val commonsCompressVersion = "1.26.2"
+val commonsCompressVersion = "1.27.0"
 
 plugins {
     id("application")
