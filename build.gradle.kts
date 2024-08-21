@@ -29,7 +29,7 @@ val commonsCodecVersion = "1.17.1"
 val junitVersion = "5.11.0"
 val kafkaVersion = "3.8.0"
 val commonsCollectionsVersion = "3.2.2"
-val commonsCompressVersion = "1.27.0"
+val commonsCompressVersion = "1.27.1"
 
 plugins {
     id("application")
