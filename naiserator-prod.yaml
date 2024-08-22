@@ -51,6 +51,7 @@ spec:
         diskAutoresize: true
         databases:
           - name: syfonlaltinn
+        tier: db-custom-1-3840
   kafka:
     pool: nav-prod
   azure:
