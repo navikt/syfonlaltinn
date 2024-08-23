@@ -119,7 +119,7 @@ class NarmesteLederRequestService(
                         ),
                 )
                 .withReceiversReference(UUID.randomUUID().toString())
-                .withReportee(nlRequest.orgnr)
+                .withReportee(nlRequest.orgnr.trim())
                 .withSendersReference(UUID.randomUUID().toString())
                 .withServiceOwnerCode(SYSTEM_USER_CODE)
                 .withValidFromDate(createXMLDate(ZonedDateTime.now(ZoneOffset.UTC)))
