@@ -23,13 +23,15 @@ val testContainerVersion = "1.20.4"
 val digisyfoNarmesteLederVersion = "1.2020.10.07-08.40-90b3ab7bad15"
 val commonsValidatorVersion = "1.9.0"
 val kotlinVersion = "2.0.21"
-val confluentVersion = "7.0.1"
 val ktfmtVersion = "0.44"
 val commonsCodecVersion = "1.17.1"
 val junitVersion = "5.11.3"
 val kafkaVersion = "3.9.0"
+
+///Due to vulnerabilities
 val commonsCollectionsVersion = "3.2.2"
 val commonsCompressVersion = "1.27.1"
+val nettycommonVersion = "4.1.115.Final"
 
 plugins {
     id("application")
@@ -60,6 +62,11 @@ dependencies {
 
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
+    constraints {
+        implementation("io.netty:netty-common:$nettycommonVersion") {
+            because("Due to vulnerabilities in io.ktor:ktor-server-netty")
+        }
+    }
     implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
     implementation("io.ktor:ktor-server-call-id:$ktorVersion")
