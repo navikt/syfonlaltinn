@@ -4,7 +4,7 @@ group = "no.nav.syfo"
 version = "1.0.0"
 
 val coroutinesVersion = "1.9.0"
-val jacksonVersion = "2.18.1"
+val jacksonVersion = "2.18.2"
 val kluentVersion = "1.73"
 val ktorVersion = "3.0.1"
 val logbackVersion = "1.5.12"
@@ -22,7 +22,7 @@ val hikariVersion = "6.2.1"
 val testContainerVersion = "1.20.4"
 val digisyfoNarmesteLederVersion = "1.2020.10.07-08.40-90b3ab7bad15"
 val commonsValidatorVersion = "1.9.0"
-val kotlinVersion = "2.0.21"
+val kotlinVersion = "2.1.0"
 val ktfmtVersion = "0.44"
 val commonsCodecVersion = "1.17.1"
 val junitVersion = "5.11.3"
@@ -36,7 +36,7 @@ val nettycommonVersion = "4.1.115.Final"
 plugins {
     id("application")
     id("com.diffplug.spotless") version "6.25.0"
-    kotlin("jvm") version "2.0.21"
+    kotlin("jvm") version "2.1.0"
     id("com.gradleup.shadow") version "8.3.5"
 }
 
