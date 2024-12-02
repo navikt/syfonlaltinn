@@ -137,8 +137,11 @@ dependencies {
 tasks {
 
     shadowJar {
+        mergeServiceFiles {
+            setPath("META-INF/services/org.flywaydb.core.extensibility.Plugin")
+            setPath("META-INF/cxf")
+        }
         transform(ServiceFileTransformer::class.java) {
-        setPath("META-INF/cxf")
         include("bus-extensions.txt")
         }
         archiveBaseName.set("app")
