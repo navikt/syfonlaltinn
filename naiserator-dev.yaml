@@ -43,8 +43,8 @@ spec:
     limits:
       memory: 1Gi
     requests:
-      cpu: 400m
-      memory: 768Mi
+      cpu: 100m
+      memory: 512Mi
   gcp:
     sqlInstances:
       - type: POSTGRES_12

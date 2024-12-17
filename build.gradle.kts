@@ -6,7 +6,7 @@ version = "1.0.0"
 val coroutinesVersion = "1.9.0"
 val jacksonVersion = "2.18.2"
 val kluentVersion = "1.73"
-val ktorVersion = "3.0.1"
+val ktorVersion = "3.0.2"
 val logbackVersion = "1.5.12"
 val logstashEncoderVersion = "8.0"
 val prometheusVersion = "0.16.0"
@@ -31,7 +31,6 @@ val kafkaVersion = "3.9.0"
 ///Due to vulnerabilities
 val commonsCollectionsVersion = "3.2.2"
 val commonsCompressVersion = "1.27.1"
-val nettycommonVersion = "4.1.115.Final"
 
 plugins {
     id("application")
@@ -62,11 +61,6 @@ dependencies {
 
     implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
-    constraints {
-        implementation("io.netty:netty-common:$nettycommonVersion") {
-            because("Due to vulnerabilities in io.ktor:ktor-server-netty")
-        }
-    }
     implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
     implementation("io.ktor:ktor-server-call-id:$ktorVersion")
