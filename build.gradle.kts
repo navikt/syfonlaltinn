@@ -22,7 +22,7 @@ val hikariVersion = "6.2.1"
 val testContainerVersion = "1.20.4"
 val digisyfoNarmesteLederVersion = "1.2020.10.07-08.40-90b3ab7bad15"
 val commonsValidatorVersion = "1.9.0"
-val kotlinVersion = "2.1.0"
+val kotlinVersion = "2.1.10"
 val ktfmtVersion = "0.44"
 val commonsCodecVersion = "1.17.2"
 val junitVersion = "5.11.4"
@@ -35,7 +35,7 @@ val commonsCompressVersion = "1.27.1"
 plugins {
     id("application")
     id("com.diffplug.spotless") version "7.0.2"
-    kotlin("jvm") version "2.1.0"
+    kotlin("jvm") version "2.1.10"
     id("com.gradleup.shadow") version "8.3.5"
 }
 
