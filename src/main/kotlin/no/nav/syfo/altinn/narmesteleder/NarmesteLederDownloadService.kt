@@ -23,6 +23,7 @@ import no.nav.syfo.nl.model.NlResponse
 import no.nav.syfo.nl.model.Sykmeldt
 import no.nav.syfo.pdl.client.PdlClient
 import no.nav.syfo.pdl.client.exception.PersonNotFoundException
+import no.nav.syfo.securelog
 import org.apache.commons.validator.routines.EmailValidator
 
 class NarmesteLederDownloadService(
@@ -107,6 +108,7 @@ class NarmesteLederDownloadService(
         item.forms.archivedFormDQBE.forEach {
             val formData = unmarshallNarmesteLederSkjema(it.formData)
             try {
+                securelog.info("Received NL-skjema, hendelsesId: ${formData.skjemainnhold.hendelseId}, lederFnr: ${formData.skjemainnhold.naermesteLeder.value.naermesteLederFoedselsnummer}, data: ${it.formData}")
                 val nlResponse = toNlResponse(formData.skjemainnhold)
                 nlResponseProducer.sendNlResponse(nlResponse)
                 log.info(
