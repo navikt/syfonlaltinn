@@ -13,7 +13,7 @@ val prometheusVersion = "0.16.0"
 val mockkVersion = "1.14.4"
 val altinnDownloadQueueVersion = "1.2020.10.21-14.38-e6bb56478815"
 val altinnPrefillVersion = "1.2020.10.21-14.38-e6bb56478815"
-val cxfVersion = "3.6.4"
+val cxfVersion = "3.6.8"
 val jaxwsToolsVersion = "2.3.1"
 val javaxActivationVersion = "1.2.0"
 val postgresVersion = "42.7.7"
@@ -86,6 +86,7 @@ dependencies {
     implementation("no.nav.tjenestespesifikasjoner:altinn-pre-fill:$altinnPrefillVersion")
     implementation("no.nav.tjenestespesifikasjoner:digisyfo-naermesteLeder:$digisyfoNarmesteLederVersion")
     implementation("org.apache.cxf:cxf-rt-frontend-jaxws:$cxfVersion")
+    implementation("org.apache.cxf:cxf-rt-features-logging:$cxfVersion")
     constraints {
         implementation("commons-collections:commons-collections:$commonsCollectionsVersion") {
             because("override transient from org.apache.cxf:cxf-rt-frontend-jaxws")

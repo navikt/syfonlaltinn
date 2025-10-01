@@ -28,6 +28,8 @@ import no.nav.syfo.nl.kafka.model.NlResponseKafkaMessage
 import no.nav.syfo.nl.kafka.util.JacksonKafkaDeserializer
 import no.nav.syfo.nl.kafka.util.JacksonKafkaSerializer
 import no.nav.syfo.pdl.client.PdlClient
+import org.apache.cxf.common.logging.LogUtils
+import org.apache.cxf.common.logging.Slf4jLogger
 import org.apache.cxf.jaxws.JaxWsProxyFactoryBean
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -42,6 +44,7 @@ val securelog = LoggerFactory.getLogger("securelog")
 
 @DelicateCoroutinesApi
 fun main() {
+    LogUtils.setLoggerClass(Slf4jLogger::class.java)
     val env = Environment()
     DefaultExports.initialize()
     val applicationState = ApplicationState()

@@ -108,7 +108,9 @@ class NarmesteLederDownloadService(
         item.forms.archivedFormDQBE.forEach {
             val formData = unmarshallNarmesteLederSkjema(it.formData)
             try {
-                securelog.info("Received NL-skjema, hendelsesId: ${formData.skjemainnhold.hendelseId}, lederFnr: ${formData.skjemainnhold.naermesteLeder.value.naermesteLederFoedselsnummer}, data: ${it.formData}")
+                securelog.info(
+                    "Received NL-skjema, hendelsesId: ${formData.skjemainnhold.hendelseId}, lederFnr: ${formData.skjemainnhold.naermesteLeder.value.naermesteLederFoedselsnummer}, data: ${it.formData}"
+                )
                 val nlResponse = toNlResponse(formData.skjemainnhold)
                 nlResponseProducer.sendNlResponse(nlResponse)
                 log.info(
