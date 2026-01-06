@@ -16,8 +16,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
 import io.ktor.network.sockets.SocketTimeoutException
 import io.ktor.serialization.jackson.jackson
-import no.nav.syfo.securelog
 import javax.naming.ServiceUnavailableException
+import no.nav.syfo.securelog
 
 class HttpClientFactory private constructor() {
     companion object {
@@ -34,7 +34,9 @@ class HttpClientFactory private constructor() {
                 install(HttpRequestRetry) {
                     exponentialDelay(2.0, baseDelayMs = 1000, maxDelayMs = 20_000)
                     retryOnExceptionIf(5) { request, throwable ->
-                        securelog.warn("Caught exception ${throwable.message}, for url ${request.url}")
+                        securelog.warn(
+                            "Caught exception ${throwable.message}, for url ${request.url}"
+                        )
                         true
                     }
                     retryIf(5) { request, response -> !response.status.isSuccess() }

@@ -59,7 +59,7 @@ spec:
       enabled: true
       tenant: trygdeetaten.no
   envFrom:
-    - secret: syfonlaltinn-secret
+    - secret: syfonlaltinn
   secureLogs:
     enabled: true
   env:

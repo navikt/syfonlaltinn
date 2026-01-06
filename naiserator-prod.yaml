@@ -61,7 +61,7 @@ spec:
       enabled: true
       tenant: nav.no
   envFrom:
-    - secret: syfonlaltinn-secret
+    - secret: syfonlaltinn
   secureLogs:
     enabled: true
   env:
