@@ -9,6 +9,9 @@ spec:
   image: {{ image }}
   accessPolicy:
     outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
       external:
         - host: www.altinn.no
         - host: pdl-api.prod-fss-pub.nais.io
@@ -62,8 +65,6 @@ spec:
       tenant: nav.no
   envFrom:
     - secret: syfonlaltinn
-  secureLogs:
-    enabled: true
   env:
     - name: ALTINN_DOWNLOAD_QUEUE_URL
       value: https://www.altinn.no/ArchiveExternal/DownloadQueueExternalBasic.svc
