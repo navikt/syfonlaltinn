@@ -159,29 +159,8 @@ class NarmesteLederDownloadService(
 
         validateInputs(nlFnr, nlEpost)
 
-        // temporary fix to fallback in case we fail to find person in PDL to avoid the terror being
-        // rethrown into oblivion and the app commits harakari
-        val pdlNlFnr =
-            try {
-                pdlClient.getGjeldendeFnr(nlFnr)
-            } catch (e: PersonNotFoundException) {
-                log.info(
-                    "Retrieving fnr from PDL failed for NL, falling back to using fnr from skjema"
-                )
-                securelog.info("failed to retrieve fnr for nl from pdl with fnr: $nlFnr")
-                nlFnr
-            }
-
-        val sykmeldtPdlFnr =
-            try {
-                pdlClient.getGjeldendeFnr(sykmeldtFnr)
-            } catch (e: PersonNotFoundException) {
-                log.info(
-                    "Retrieving fnr from PDL failed for sykmeldt, falling back to using fnr from skjema"
-                )
-                securelog.info("failed to retrieve fnr for sykmeldt from pdl with fnr: $sykmeldtFnr")
-                sykmeldtFnr
-            }
+        val pdlNlFnr = pdlClient.getGjeldendeFnr(nlFnr)
+        val sykmeldtPdlFnr = pdlClient.getGjeldendeFnr(sykmeldtFnr)
 
         return NlResponse(
             orgnummer = orgnummer,
