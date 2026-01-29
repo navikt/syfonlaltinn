@@ -126,7 +126,12 @@ class NarmesteLederDownloadService(
                 if (cluster == "dev-gcp") {
                     log.error("Ignorerer testperson som ikke finnes i PDL i dev")
                 } else {
-                    throw e
+                    securelog.error(
+                        "Person not found in PDL. nlFnr: ${formData.skjemainnhold.naermesteLeder.value.naermesteLederFoedselsnummer.value}, " +
+                            "sykmeldtFnr: ${formData.skjemainnhold.sykmeldt.value.sykmeldtFoedselsnummer}, " +
+                            "archiveRef: ${item.archiveReference}",
+                    )
+                    log.warn("Skipping NL-skjema ${item.archiveReference} - person not found in PDL")
                 }
             }
         }
