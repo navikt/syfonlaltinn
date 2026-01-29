@@ -59,18 +59,18 @@ class NarmesteLederDownloadService(
                     legalExceptions =
                         arrayOf(
                             IOException::class,
-                            IDownloadQueueExternalBasicGetDownloadQueueItemsAltinnFaultFaultFaultMessage::class
+                            IDownloadQueueExternalBasicGetDownloadQueueItemsAltinnFaultFaultFaultMessage::class,
                         ),
                 ) {
                     iDownloadQueueExternalBasic.getDownloadQueueItems(
                         navUsername,
                         navPassword,
-                        SERVICE_CODE
+                        SERVICE_CODE,
                     )
                 }
             if (items.downloadQueueItemBE.size > 0) {
                 log.info(
-                    "Got items from download queue from altinn ${items.downloadQueueItemBE.size}"
+                    "Got items from download queue from altinn ${items.downloadQueueItemBE.size}",
                 )
             }
             items.downloadQueueItemBE.forEach { handleDownloadItem(it) }
@@ -93,7 +93,7 @@ class NarmesteLederDownloadService(
                 legalExceptions =
                     arrayOf(
                         IOException::class,
-                        IDownloadQueueExternalBasicGetArchivedFormTaskBasicDQAltinnFaultFaultFaultMessage::class
+                        IDownloadQueueExternalBasicGetArchivedFormTaskBasicDQAltinnFaultFaultFaultMessage::class,
                     ),
             ) {
                 iDownloadQueueExternalBasic.getArchivedFormTaskBasicDQ(
@@ -101,7 +101,7 @@ class NarmesteLederDownloadService(
                     navPassword,
                     it.archiveReference,
                     LANGUAGE_ID,
-                    true
+                    true,
                 )
             }
 
@@ -109,18 +109,18 @@ class NarmesteLederDownloadService(
             val formData = unmarshallNarmesteLederSkjema(it.formData)
             try {
                 securelog.info(
-                    "Received NL-skjema, hendelsesId: ${formData.skjemainnhold.hendelseId}, lederFnr: ${formData.skjemainnhold.naermesteLeder.value.naermesteLederFoedselsnummer}, data: ${it.formData}"
+                    "Received NL-skjema, hendelsesId: ${formData.skjemainnhold.hendelseId}, lederFnr: ${formData.skjemainnhold.naermesteLeder.value.naermesteLederFoedselsnummer}, data: ${it.formData}",
                 )
                 val nlResponse = toNlResponse(formData.skjemainnhold)
                 nlResponseProducer.sendNlResponse(nlResponse)
                 log.info(
-                    "Got item from altinn download queue ${item.archiveReference} and sendt to kafka"
+                    "Got item from altinn download queue ${item.archiveReference} and sendt to kafka",
                 )
             } catch (e: ValidationException) {
                 INVALID_NL_SKJEMA.labels(e.type).inc()
                 nlInvalidProducer.send(formData.skjemainnhold.organisasjonsnummer, it)
                 log.warn(
-                    "Kunne ikke behandle NL-skjema ${item.archiveReference} for orgnummer ${formData.skjemainnhold.organisasjonsnummer}: ${e.message}"
+                    "Kunne ikke behandle NL-skjema ${item.archiveReference} for orgnummer ${formData.skjemainnhold.organisasjonsnummer}: ${e.message}",
                 )
             } catch (e: PersonNotFoundException) {
                 if (cluster == "dev-gcp") {
@@ -136,7 +136,7 @@ class NarmesteLederDownloadService(
             legalExceptions =
                 arrayOf(
                     IOException::class,
-                    IDownloadQueueExternalBasicPurgeItemAltinnFaultFaultFaultMessage::class
+                    IDownloadQueueExternalBasicPurgeItemAltinnFaultFaultFaultMessage::class,
                 ),
         ) {
             iDownloadQueueExternalBasic.purgeItem(navUsername, navPassword, it.archiveReference)
@@ -158,8 +158,31 @@ class NarmesteLederDownloadService(
         nlEpost = fixEmailFormat(nlEpost)
 
         validateInputs(nlFnr, nlEpost)
-        val pdlNlFnr = pdlClient.getGjeldendeFnr(nlFnr)
-        val sykmeldtPdlFnr = pdlClient.getGjeldendeFnr(sykmeldtFnr)
+
+        // temporary fix to fallback in case we fail to find person in PDL to avoid the terror being
+        // rethrown into oblivion and the app commits harakari
+        val pdlNlFnr =
+            try {
+                pdlClient.getGjeldendeFnr(nlFnr)
+            } catch (e: PersonNotFoundException) {
+                log.info(
+                    "Retrieving fnr from PDL failed for NL, falling back to using fnr from skjema"
+                )
+                securelog.info("failed to retrieve fnr for nl from pdl with fnr: $nlFnr")
+                nlFnr
+            }
+
+        val sykmeldtPdlFnr =
+            try {
+                pdlClient.getGjeldendeFnr(sykmeldtFnr)
+            } catch (e: PersonNotFoundException) {
+                log.info(
+                    "Retrieving fnr from PDL failed for sykmeldt, falling back to using fnr from skjema"
+                )
+                securelog.info("failed to retrieve fnr for sykmeldt from pdl with fnr: $sykmeldtFnr")
+                sykmeldtFnr
+            }
+
         return NlResponse(
             orgnummer = orgnummer,
             utbetalesLonn = utbetalesLonn,
