@@ -131,7 +131,9 @@ class NarmesteLederDownloadService(
                             "sykmeldtFnr: ${formData.skjemainnhold.sykmeldt.value.sykmeldtFoedselsnummer}, " +
                             "archiveRef: ${item.archiveReference}",
                     )
-                    log.warn("Skipping NL-skjema ${item.archiveReference} - person not found in PDL")
+                    log.warn(
+                        "Skipping NL-skjema ${item.archiveReference} - person not found in PDL"
+                    )
                 }
             }
         }

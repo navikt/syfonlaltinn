@@ -7,7 +7,7 @@ val coroutinesVersion = "1.10.2"
 val jacksonVersion = "2.20.2"
 val kluentVersion = "1.73"
 val ktorVersion = "3.4.0"
-val logbackVersion = "1.5.18"
+val logbackVersion = "1.5.26"
 val logstashEncoderVersion = "8.1"
 val prometheusVersion = "0.16.0"
 val mockkVersion = "1.14.4"
@@ -19,7 +19,7 @@ val javaxActivationVersion = "1.2.0"
 val postgresVersion = "42.7.7"
 val flywayVersion = "11.10.2"
 val hikariVersion = "6.3.0"
-val testContainerVersion = "1.21.3"
+val testcontainerVersion = "2.0.1"
 val digisyfoNarmesteLederVersion = "1.2020.10.07-08.40-90b3ab7bad15"
 val commonsValidatorVersion = "1.10.0"
 val kotlinVersion = "2.2.0"
@@ -27,9 +27,7 @@ val ktfmtVersion = "0.44"
 val junitVersion = "5.13.3"
 val kafkaVersion = "3.9.1"
 
-///Due to vulnerabilities
 val commonsCollectionsVersion = "3.2.2"
-val commonsCompressVersion = "1.27.1"
 
 plugins {
     id("application")
@@ -98,7 +96,7 @@ dependencies {
     implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
 
 
-    implementation("org.apache.kafka:kafka_2.12:$kafkaVersion")
+    implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
 
 
     implementation("commons-validator:commons-validator:$commonsValidatorVersion"){
@@ -110,16 +108,11 @@ dependencies {
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.testcontainers:kafka:$testContainerVersion")
-    constraints {
-        testImplementation("org.apache.commons:commons-compress:$commonsCompressVersion") {
-            because("overrides vulnerable dependency from org.testcontainers:kafka")
-        }
-    }
+    testImplementation("org.testcontainers:testcontainers-kafka:$testcontainerVersion")
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
         exclude(group = "org.eclipse.jetty")
     }
-    testImplementation("org.testcontainers:postgresql:$testContainerVersion")
+    testImplementation("org.testcontainers:testcontainers-postgresql:$testcontainerVersion")
 
 }
 
