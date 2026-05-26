@@ -3,6 +3,7 @@ package no.nav.syfo.altinn.narmesteleder
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.databind.util.ClassUtil.exceptionMessage
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import generated.XMLOppgiPersonallederM
@@ -24,6 +25,7 @@ import no.altinn.schemas.services.serviceengine.prefill._2009._10.PrefillForm
 import no.altinn.schemas.services.serviceengine.prefill._2009._10.PrefillFormBEList
 import no.altinn.schemas.services.serviceengine.prefill._2009._10.PrefillFormTask
 import no.altinn.services.serviceengine.prefill._2009._10.IPreFillExternalBasic
+import no.altinn.services.serviceengine.prefill._2009._10.IPreFillExternalBasicSubmitAndInstantiatePrefilledFormTaskBasicAltinnFaultFaultFaultMessage
 import no.nav.syfo.altinn.orgnummer.AltinnOrgnummerLookup
 import no.nav.syfo.helpers.retry
 import no.nav.syfo.log
@@ -83,7 +85,9 @@ class NarmesteLederRequestService(
                 }
             securelog.info("receipt: ${objectMapper.writeValueAsString(receipt)}")
             if (receipt.receiptStatusCode != ReceiptStatusEnum.OK) {
-                securelog.error("Failed to send request to altinn: ${objectMapper.writeValueAsString(receipt)}")
+                securelog.error(
+                    "Failed to send request to altinn: ${objectMapper.writeValueAsString(receipt)}"
+                )
                 log.error(
                     "Could not sendt NlRequest to altinn for sykmelding :${nlRequest.sykmeldingId}"
                 )
@@ -97,6 +101,9 @@ class NarmesteLederRequestService(
                 .orElseThrow { RuntimeException("Could not find SendersReference") }
         } catch (ex: Exception) {
             log.error("Could not send to altinn", ex)
+            if(ex is IPreFillExternalBasicSubmitAndInstantiatePrefilledFormTaskBasicAltinnFaultFaultFaultMessage) {
+                securelog.error(objectMapper.writeValueAsString(ex.faultInfo))
+            }
             throw ex
         }
     }

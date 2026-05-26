@@ -1,5 +1,6 @@
 package no.nav.syfo.nl
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -13,6 +14,8 @@ import java.time.ZoneOffset
 import java.util.UUID
 import kotlin.test.assertFails
 import kotlinx.coroutines.runBlocking
+import no.altinn.services.common.fault._2009._10.AltinnFault
+import no.altinn.services.serviceengine.prefill._2009._10.IPreFillExternalBasicSubmitAndInstantiatePrefilledFormTaskBasicAltinnFaultFaultFaultMessage
 import no.nav.syfo.altinn.narmesteleder.NarmesteLederRequestService
 import no.nav.syfo.altinn.narmesteleder.db.erSendtSisteUke
 import no.nav.syfo.altinn.narmesteleder.db.getAltinnStatus
@@ -21,6 +24,7 @@ import no.nav.syfo.altinn.narmesteleder.db.updateAltinnStatus
 import no.nav.syfo.altinn.narmesteleder.model.AltinnStatus
 import no.nav.syfo.application.ApplicationState
 import no.nav.syfo.db.DatabaseInterface
+import no.nav.syfo.log
 import no.nav.syfo.nl.kafka.model.KafkaMetadata
 import no.nav.syfo.nl.kafka.model.NlRequestKafkaMessage
 import no.nav.syfo.nl.model.NlRequest
