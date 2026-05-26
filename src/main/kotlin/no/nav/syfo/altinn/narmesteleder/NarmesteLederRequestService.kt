@@ -83,7 +83,9 @@ class NarmesteLederRequestService(
                 }
             securelog.info("receipt: ${objectMapper.writeValueAsString(receipt)}")
             if (receipt.receiptStatusCode != ReceiptStatusEnum.OK) {
-                securelog.error("Failed to send request to altinn: ${objectMapper.writeValueAsString(receipt)}")
+                securelog.error(
+                    "Failed to send request to altinn: ${objectMapper.writeValueAsString(receipt)}"
+                )
                 log.error(
                     "Could not sendt NlRequest to altinn for sykmelding :${nlRequest.sykmeldingId}"
                 )
