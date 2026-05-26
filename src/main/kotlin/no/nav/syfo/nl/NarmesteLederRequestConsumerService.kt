@@ -25,6 +25,7 @@ class NarmesteLederRequestConsumerService(
     private val topic: String,
     private val narmesteLederService: NarmesteLederRequestService,
     private val database: DatabaseInterface,
+    private val cluster: String,
 ) {
 
     suspend fun startConsumer() {
@@ -67,7 +68,11 @@ class NarmesteLederRequestConsumerService(
         } catch (ex: Exception) {
             log.error("Error updating altinn")
             database.updateAltinnStatus(altinnStatus.copy(status = AltinnStatus.Status.ERROR))
-            throw ex
+            if (cluster == "dev-gcp") {
+                log.warn("skipping in dev-gcp")
+            } else {
+                throw ex
+            }
         }
     }
 

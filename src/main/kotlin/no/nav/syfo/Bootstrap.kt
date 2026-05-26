@@ -139,6 +139,7 @@ fun main() {
             env.nlRequestTopic,
             narmesteLederRequestService,
             database,
+            env.cluster,
         )
 
     val nlResponseKafkaProducer = NlResponseProducer(kafkaProducer, env.nlResponseTopic)

@@ -3,7 +3,6 @@ package no.nav.syfo.altinn.narmesteleder
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.databind.util.ClassUtil.exceptionMessage
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import generated.XMLOppgiPersonallederM
@@ -101,7 +100,11 @@ class NarmesteLederRequestService(
                 .orElseThrow { RuntimeException("Could not find SendersReference") }
         } catch (ex: Exception) {
             log.error("Could not send to altinn", ex)
-            if(ex is IPreFillExternalBasicSubmitAndInstantiatePrefilledFormTaskBasicAltinnFaultFaultFaultMessage) {
+            if (
+                ex
+                    is
+                    IPreFillExternalBasicSubmitAndInstantiatePrefilledFormTaskBasicAltinnFaultFaultFaultMessage
+            ) {
                 securelog.error(objectMapper.writeValueAsString(ex.faultInfo))
             }
             throw ex
