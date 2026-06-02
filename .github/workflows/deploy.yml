@@ -1,4 +1,4 @@
-name: Deploy app to dev and prod
+name: Deploy app to prod
 on: push
 
 permissions:
@@ -45,18 +45,6 @@ jobs:
         id: docker-build-push
         with:
           team: "teamsykmelding"
-
-  deploy-dev:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v6
-      - name: Deploy to nais-dev
-        uses: nais/deploy/actions/deploy@v2
-        env:
-          CLUSTER: "dev-gcp"
-          RESOURCE: naiserator-dev.yaml
-          WORKLOAD_IMAGE: ${{ needs.build.outputs.image }}
 
   deploy-prod:
     runs-on: ubuntu-latest
