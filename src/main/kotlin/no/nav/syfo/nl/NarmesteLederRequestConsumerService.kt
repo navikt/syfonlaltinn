@@ -18,6 +18,8 @@ import no.nav.syfo.log
 import no.nav.syfo.nl.kafka.model.NlRequestKafkaMessage
 import no.nav.syfo.nl.model.NlRequest
 import org.apache.kafka.clients.consumer.KafkaConsumer
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 class NarmesteLederRequestConsumerService(
     private val kafkaConsumer: KafkaConsumer<String, NlRequestKafkaMessage>,
@@ -27,12 +29,18 @@ class NarmesteLederRequestConsumerService(
     private val database: DatabaseInterface,
     private val cluster: String,
 ) {
+    private val cutoffDatetime =  ZonedDateTime.of(2026, 6, 15, 12, 0, 0, 0, ZoneId.of("Europe/Oslo")).toOffsetDateTime()
 
     suspend fun startConsumer() {
         kafkaConsumer.subscribe(listOf(topic))
         log.info("Starting consuming topic $topic")
-        while (applicationState.ready) {
+        while (applicationState.ready && OffsetDateTime.now().isBefore(cutoffDatetime)) {
             kafkaConsumer.poll(10_000.seconds.toJavaDuration()).forEach {
+                if (!OffsetDateTime.now().isBefore(cutoffDatetime)) {
+                    log.info("time is after cutof, not sending to altinn")
+                    kafkaConsumer.close()
+                    return
+                }
                 val nlRequest = it.value().nlRequest
                 if (erSendtSisteUke(orgnummer = nlRequest.orgnr, fnr = nlRequest.fnr)) {
                     log.info(

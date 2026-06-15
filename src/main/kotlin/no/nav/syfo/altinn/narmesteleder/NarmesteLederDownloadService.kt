@@ -2,6 +2,8 @@ package no.nav.syfo.altinn.narmesteleder
 
 import generated.XMLSkjemainnhold
 import java.io.IOException
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import kotlinx.coroutines.delay
 import no.altinn.schemas.services.archive.downloadqueue._2012._08.DownloadQueueItemBE
 import no.altinn.services.archive.downloadqueue._2012._08.IDownloadQueueExternalBasic
@@ -25,6 +27,8 @@ import no.nav.syfo.pdl.client.PdlClient
 import no.nav.syfo.pdl.client.exception.PersonNotFoundException
 import no.nav.syfo.securelog
 import org.apache.commons.validator.routines.EmailValidator
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 class NarmesteLederDownloadService(
     private val iDownloadQueueExternalBasic: IDownloadQueueExternalBasic,
@@ -36,6 +40,7 @@ class NarmesteLederDownloadService(
     private val pdlClient: PdlClient,
     private val cluster: String,
 ) {
+    private val cutoffDatetime =  ZonedDateTime.of(2026, 6, 15, 12, 0, 0, 0, ZoneId.of("Europe/Oslo")).toOffsetDateTime()
 
     companion object {
         private const val SERVICE_CODE = "4596"
@@ -44,7 +49,7 @@ class NarmesteLederDownloadService(
     }
 
     suspend fun start() {
-        while (applicationState.ready) {
+        while (applicationState.ready && OffsetDateTime.now().isBefore(cutoffDatetime)) {
             pollDownloadQueueAndHandle()
             delay(DELAY)
         }
